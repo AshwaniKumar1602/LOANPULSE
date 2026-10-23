@@ -81,21 +81,11 @@ class LoanApplication(db.Model):
     repayment_schedules = db.relationship("RepaymentSchedule", back_populates="application", cascade="all, delete-orphan", lazy="dynamic", order_by="RepaymentSchedule.installment_number")
 
     def calculate_estimated_monthly_emi(self) -> float:
-        """Calculates standard reducing balance Equated Monthly Installment (EMI)."""
-        principal = float(self.approved_amount or self.requested_amount)
-        annual_rate = float(self.interest_rate)
-        tenure = int(self.tenure_months)
-
-        if principal <= 0 or tenure <= 0:
-            return 0.0
-
-        monthly_rate = (annual_rate / 100.0) / 12.0
-        if monthly_rate == 0:
-            return round(principal / tenure, 2)
-
-        factor = (1.0 + monthly_rate) ** tenure
-        emi = (principal * monthly_rate * factor) / (factor - 1.0)
-        return round(emi, 2)
+        """Calculates standard reducing balance Equated Monthly Installment (EMI) using Python Decimal arithmetic."""
+        from app.services.calculator_service import calculate_precise_emi
+        principal = self.approved_amount or self.requested_amount or 0.0
+        emi_dec = calculate_precise_emi(principal, self.interest_rate or 0.0, self.tenure_months or 0)
+        return float(emi_dec)
 
     def __repr__(self):
         return f"<LoanApplication {self.application_number} [{self.status}] Amt={self.requested_amount}>"

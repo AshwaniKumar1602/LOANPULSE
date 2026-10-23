@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Loan Products Catalogue — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-6xl mx-auto">
+  
+  <!-- Header Banner -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800 gap-4">
+    <div>
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-300 text-xs font-semibold mb-2">
+        <i class="fa-solid fa-layer-group text-amber-500"></i>
+        <span>Credit Catalogue &amp; Underwriting Guidelines</span>
+      </div>
+      <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100">Institutional Loan Product Offerings</h1>
+      <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+        Explore our credit lines, underwriting benchmarks, minimum income thresholds, and flexible repayment terms.
+      </p>
+    </div>
+
+    <div>
+      <a href="{{ url_for('main.calculator') }}" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors flex items-center space-x-2 shadow-xs">
+        <i class="fa-solid fa-calculator text-amber-500"></i>
+        <span>Open EMI Calculator</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Product Grid (Responsive: 1 col mobile, 2 cols tablet/desktop) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for product in products %}
+      <div class="bg-white dark:bg-slate-800/90 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-7 shadow-sm flex flex-col justify-between hover:border-amber-400 dark:hover:border-amber-600/80 transition-all">
+        
+        <div>
+          <!-- Badges & Product Category -->
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <span class="text-xs font-extrabold tracking-wider uppercase text-amber-700 dark:text-amber-400">
+              {{ product.code.replace('_', ' ') }}
+            </span>
+            <div class="flex flex-wrap gap-1.5">
+              {% if product.secured %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                  <i class="fa-solid fa-shield-halved mr-1 text-[9px]"></i>Secured
+                </span>
+              {% else %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                  <i class="fa-solid fa-unlock mr-1 text-[9px]"></i>Unsecured
+                </span>
+              {% endif %}
+
+              {% if product.moratorium_months and product.moratorium_months > 0 %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                  <i class="fa-regular fa-clock mr-1 text-[9px]"></i>{{ product.moratorium_months }}m Moratorium
+                </span>
+              {% endif %}
+
+              {% if product.processing_speed == 'INSTANT' %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
+                  <i class="fa-solid fa-bolt mr-1 text-[9px]"></i>Instant SLA
+                </span>
+              {% endif %}
+            </div>
+          </div>
+
+          <h2 class="text-xl font-extrabold text-slate-900 dark:text-slate-100 mb-2">{{ product.name }}</h2>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6">{{ product.description }}</p>
+
+          <!-- Specifications Matrix -->
+          <div class="p-4 rounded-2xl bg-amber-50/50 dark:bg-slate-900/40 border border-amber-200/80 dark:border-slate-700 space-y-2.5 text-xs mb-6">
+            <div class="flex justify-between items-center py-0.5">
+              <span class="text-slate-600 dark:text-slate-400">Annual Interest Rate (APR):</span>
+              <span class="font-extrabold text-amber-600 dark:text-amber-400 text-sm">{{ product.base_interest_rate }}% APR</span>
+            </div>
+            <div class="flex justify-between items-center py-0.5 border-t border-amber-200/40 dark:border-slate-800">
+              <span class="text-slate-600 dark:text-slate-400">Borrowing Range:</span>
+              <span class="font-bold text-slate-900 dark:text-slate-100 font-mono">
+                ${{ "{:,.0f}".format(product.min_amount) }} &ndash; ${{ "{:,.0f}".format(product.max_amount) }}
+              </span>
+            </div>
+            <div class="flex justify-between items-center py-0.5 border-t border-amber-200/40 dark:border-slate-800">
+              <span class="text-slate-600 dark:text-slate-400">Repayment Term Duration:</span>
+              <span class="font-bold text-slate-900 dark:text-slate-100">
+                {{ product.min_tenure_months }} &ndash; {{ product.max_tenure_months }} Months
+                {% if product.max_tenure_months >= 84 %}
+                  <span class="text-slate-500 font-normal">({{ "{:,.1f}".format(product.max_tenure_months / 12) }} Yrs max)</span>
+                {% endif %}
+              </span>
+            </div>
+            <div class="flex justify-between items-center py-0.5 border-t border-amber-200/40 dark:border-slate-800">
+              <span class="text-slate-600 dark:text-slate-400">Minimum Monthly Income:</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">
+                ${{ "{:,.2f}".format(product.min_income_required or 2000.0) }}/mo
+              </span>
+            </div>
+            <div class="flex justify-between items-center py-0.5 border-t border-amber-200/40 dark:border-slate-800">
+              <span class="text-slate-600 dark:text-slate-400">Eligibility Criteria:</span>
+              <span class="font-semibold text-slate-700 dark:text-slate-300">
+                Credit &ge; {{ product.min_credit_score }} &bull; Max DTI {{ product.max_dti_ratio }}%
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action CTAs -->
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <a href="{{ url_for('main.calculator') }}?product_id={{ product.id }}" class="py-2.5 px-3 rounded-xl text-center text-xs font-bold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 transition-colors flex items-center justify-center space-x-1">
+            <i class="fa-solid fa-calculator text-amber-500 mr-1"></i>
+            <span>Simulate EMI</span>
+          </a>
+
+          {% if current_user.is_authenticated and current_user.is_customer %}
+            <a href="{{ url_for('customer.apply') }}?product_id={{ product.id }}" class="py-2.5 px-3 rounded-xl text-center text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition-all flex items-center justify-center space-x-1">
+              <span>Apply Now</span>
+              <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+            </a>
+          {% else %}
+            <a href="{{ url_for('auth.login') }}?role=CUSTOMER" class="py-2.5 px-3 rounded-xl text-center text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition-all flex items-center justify-center space-x-1">
+              <span>Apply Now</span>
+              <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
+            </a>
+          {% endif %}
+        </div>
+
+      </div>
+    {% else %}
+      <div class="col-span-2 p-12 text-center rounded-3xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500">
+        <i class="fa-solid fa-folder-open text-3xl mb-3 text-slate-400 block"></i>
+        <p class="text-sm">No loan products are currently active in the catalogue.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

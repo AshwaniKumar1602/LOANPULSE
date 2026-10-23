@@ -293,6 +293,7 @@ def create_product():
             code=code,
             name=sanitize_input(form.name.data.strip()),
             description=sanitize_input(form.description.data or ""),
+            loan_category=form.loan_category.data,
             min_amount=form.min_amount.data,
             max_amount=form.max_amount.data,
             min_tenure_months=form.min_tenure_months.data,
@@ -300,6 +301,10 @@ def create_product():
             base_interest_rate=form.base_interest_rate.data,
             min_credit_score=form.min_credit_score.data,
             max_dti_ratio=form.max_dti_ratio.data,
+            min_income_required=form.min_income_required.data,
+            secured=form.secured.data,
+            moratorium_months=form.moratorium_months.data or 0,
+            processing_speed=form.processing_speed.data,
             is_active=form.is_active.data,
         )
         db.session.add(product)
@@ -318,6 +323,7 @@ def edit_product(prod_id: int):
     if form.validate_on_submit():
         product.name = sanitize_input(form.name.data.strip())
         product.description = sanitize_input(form.description.data or "")
+        product.loan_category = form.loan_category.data
         product.min_amount = form.min_amount.data
         product.max_amount = form.max_amount.data
         product.min_tenure_months = form.min_tenure_months.data
@@ -325,6 +331,10 @@ def edit_product(prod_id: int):
         product.base_interest_rate = form.base_interest_rate.data
         product.min_credit_score = form.min_credit_score.data
         product.max_dti_ratio = form.max_dti_ratio.data
+        product.min_income_required = form.min_income_required.data
+        product.secured = form.secured.data
+        product.moratorium_months = form.moratorium_months.data or 0
+        product.processing_speed = form.processing_speed.data
         product.is_active = form.is_active.data
 
         db.session.commit()
@@ -332,6 +342,16 @@ def edit_product(prod_id: int):
         return redirect(url_for("manager.products"))
 
     return render_template("manager/product_edit.html", form=form, title=f"Edit Product: {product.name}")
+
+
+@manager_bp.route("/products/<int:prod_id>/toggle-status", methods=["POST"])
+def toggle_product_status(prod_id: int):
+    product = LoanProduct.query.get_or_404(prod_id)
+    product.is_active = not product.is_active
+    db.session.commit()
+    status_label = "activated" if product.is_active else "deactivated"
+    flash(f"Loan Product '{product.name}' has been {status_label}.", "info")
+    return redirect(url_for("manager.products"))
 
 
 @manager_bp.route("/audit-logs")

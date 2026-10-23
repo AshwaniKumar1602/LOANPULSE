@@ -19,6 +19,13 @@ class LoanProduct(db.Model):
     min_credit_score = db.Column(db.Integer, nullable=False, default=650)
     max_dti_ratio = db.Column(db.Numeric(5, 2), nullable=False, default=50.00)  # Max allowable DTI %
     
+    # Advanced rule engine and eligibility attributes (Phase 7)
+    min_income_required = db.Column(db.Numeric(14, 2), nullable=False, default=2000.00)
+    secured = db.Column(db.Boolean, default=False, nullable=False)
+    moratorium_months = db.Column(db.Integer, default=0, nullable=False)
+    processing_speed = db.Column(db.String(50), nullable=True, default="STANDARD")  # INSTANT, EXPRESS, STANDARD
+    loan_category = db.Column(db.String(50), nullable=True, default="PERSONAL")  # PERSONAL, VEHICLE, MEDICAL, EDUCATION
+
     is_active = db.Column(db.Boolean, default=True, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 

@@ -31,7 +31,11 @@ function updateCalculatorDisplay() {
   const interestEl = document.getElementById("calc-interest-val");
   const paymentEl = document.getElementById("calc-payment-val");
   const principalEl = document.getElementById("calc-principal-val");
+  const rateVal = document.getElementById("calc-rate-val");
+  const tenureVal = document.getElementById("calc-tenure-val");
 
+  if (rateVal) rateVal.textContent = rate + "%";
+  if (tenureVal) tenureVal.textContent = tenure + " Mos";
   if (emiEl) emiEl.textContent = "$" + result.emi.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   if (interestEl) interestEl.textContent = "$" + result.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   if (paymentEl) paymentEl.textContent = "$" + result.totalPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -62,9 +66,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Product selector sync
   const productSelect = document.getElementById("calc-product-select");
   if (productSelect) {
-    productSelect.addEventListener("change", (e) => {
-      const selectedOption = e.target.selectedOptions[0];
-      if (selectedOption) {
+    const applyProductPreset = () => {
+      const selectedOption = productSelect.selectedOptions[0];
+      if (selectedOption && selectedOption.value) {
         const rate = selectedOption.getAttribute("data-rate");
         const minAmt = selectedOption.getAttribute("data-min");
         const maxAmt = selectedOption.getAttribute("data-max");
@@ -72,14 +76,31 @@ document.addEventListener("DOMContentLoaded", () => {
         const maxTenure = selectedOption.getAttribute("data-max-tenure");
 
         if (rate && rateSlider) rateSlider.value = rate;
-        if (minAmt && amountSlider) amountSlider.min = minAmt;
-        if (maxAmt && amountSlider) amountSlider.max = maxAmt;
-        if (minTenure && tenureSlider) tenureSlider.min = minTenure;
-        if (maxTenure && tenureSlider) tenureSlider.max = maxTenure;
+        if (minAmt && amountSlider) {
+          amountSlider.min = minAmt;
+          if (parseFloat(amountSlider.value) < parseFloat(minAmt)) amountSlider.value = minAmt;
+        }
+        if (maxAmt && amountSlider) {
+          amountSlider.max = maxAmt;
+          if (parseFloat(amountSlider.value) > parseFloat(maxAmt)) amountSlider.value = maxAmt;
+        }
+        if (minTenure && tenureSlider) {
+          tenureSlider.min = minTenure;
+          if (parseInt(tenureSlider.value, 10) < parseInt(minTenure, 10)) tenureSlider.value = minTenure;
+        }
+        if (maxTenure && tenureSlider) {
+          tenureSlider.max = maxTenure;
+          if (parseInt(tenureSlider.value, 10) > parseInt(maxTenure, 10)) tenureSlider.value = maxTenure;
+        }
 
         updateCalculatorDisplay();
       }
-    });
+    };
+
+    productSelect.addEventListener("change", applyProductPreset);
+    if (productSelect.value) {
+      applyProductPreset();
+    }
   }
 
   updateCalculatorDisplay();

@@ -1,6 +1,7 @@
 from app.extensions import db
 from app.models.underwriting import UnderwritingAssessment, UnderwritingOutcome
 from app.models.loan_application import LoanApplication
+from app.models.loan_product import LoanProduct
 from app.models.customer import CustomerProfile
 
 
@@ -85,12 +86,21 @@ def evaluate_loan_application(
         "passed": emi_to_income_ratio <= 45.0 and monthly_income > 0,
     }
 
+    min_income_req = float(product.min_income_required) if product and getattr(product, "min_income_required", None) is not None else 0.0
+    rule_min_income = {
+        "rule": "Minimum Monthly Income",
+        "required": min_income_req,
+        "actual": monthly_income,
+        "passed": monthly_income >= min_income_req if min_income_req > 0 else True,
+    }
+
     rule_breakdown = {
         "credit_score": rule_credit,
         "dti": rule_dti,
         "amount_bounds": rule_amount,
         "tenure_bounds": rule_tenure,
         "income_sufficiency": rule_income,
+        "min_income": rule_min_income,
     }
 
     # 4. Compute Composite Risk Score (0 = ultra safe, 100 = extreme risk)
@@ -151,3 +161,72 @@ def evaluate_loan_application(
 
     db.session.commit()
     return assessment
+
+
+def validate_product_eligibility(
+    product: LoanProduct,
+    requested_amount: float,
+    tenure_months: int,
+    monthly_income: float,
+    existing_debt: float = 0.0,
+    credit_score: int = 650,
+) -> dict:
+    """
+    Validates applicant eligibility against configured loan product rules.
+    Returns eligibility flag, passed/failed rules breakdown, and estimated EMI.
+    """
+    from app.services.calculator_service import calculate_precise_emi
+
+    P = float(requested_amount)
+    n = int(tenure_months)
+    rate = float(product.base_interest_rate)
+    emi = float(calculate_precise_emi(P, rate, n))
+
+    obligations = float(existing_debt) + emi
+    dti_ratio = round((obligations / monthly_income * 100.0), 2) if monthly_income > 0 else 100.0
+    emi_to_income = round((emi / monthly_income * 100.0), 2) if monthly_income > 0 else 100.0
+
+    min_amount = float(product.min_amount)
+    max_amount = float(product.max_amount)
+    min_tenure = int(product.min_tenure_months)
+    max_tenure = int(product.max_tenure_months)
+    min_score = int(product.min_credit_score)
+    max_dti = float(product.max_dti_ratio)
+    min_income = float(getattr(product, "min_income_required", 0.0) or 0.0)
+
+    checks = {
+        "amount_in_range": {
+            "passed": min_amount <= P <= max_amount,
+            "message": f"Requested amount ${P:,.2f} must be between ${min_amount:,.2f} and ${max_amount:,.2f}.",
+        },
+        "tenure_in_range": {
+            "passed": min_tenure <= n <= max_tenure,
+            "message": f"Tenure of {n} months must be between {min_tenure} and {max_tenure} months.",
+        },
+        "credit_score_sufficient": {
+            "passed": credit_score >= min_score,
+            "message": f"Credit score {credit_score} must be at least {min_score}.",
+        },
+        "dti_acceptable": {
+            "passed": dti_ratio <= max_dti,
+            "message": f"Total DTI ratio {dti_ratio}% exceeds maximum allowed {max_dti}%.",
+        },
+        "income_sufficient": {
+            "passed": monthly_income >= min_income if min_income > 0 else monthly_income > 0,
+            "message": f"Monthly income ${monthly_income:,.2f} must be at least ${min_income:,.2f}.",
+        },
+    }
+
+    is_eligible = all(c["passed"] for c in checks.values())
+    failed_reasons = [c["message"] for c in checks.values() if not c["passed"]]
+
+    return {
+        "is_eligible": is_eligible,
+        "product_code": product.code,
+        "product_name": product.name,
+        "estimated_emi": emi,
+        "dti_ratio": dti_ratio,
+        "emi_to_income_ratio": emi_to_income,
+        "checks": checks,
+        "reasons": failed_reasons,
+    }

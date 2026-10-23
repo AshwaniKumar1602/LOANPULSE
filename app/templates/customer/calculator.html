@@ -26,9 +26,9 @@
           Select Loan Product Preset
         </label>
         <select id="calc-product-select" class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500">
-          <option value="" disabled selected>-- Choose a loan product to prefill parameters --</option>
+          <option value="" disabled {% if not request.args.get('product_id') %}selected{% endif %}>-- Choose a loan product to prefill parameters --</option>
           {% for p in products %}
-            <option value="{{ p.id }}" data-rate="{{ p.base_interest_rate }}" data-min="{{ p.min_amount }}" data-max="{{ p.max_amount }}" data-min-tenure="{{ p.min_tenure_months }}" data-max-tenure="{{ p.max_tenure_months }}">
+            <option value="{{ p.id }}" data-rate="{{ p.base_interest_rate }}" data-min="{{ p.min_amount }}" data-max="{{ p.max_amount }}" data-min-tenure="{{ p.min_tenure_months }}" data-max-tenure="{{ p.max_tenure_months }}" {% if request.args.get('product_id')|string == p.id|string %}selected{% endif %}>
               {{ p.name }} ({{ p.base_interest_rate }}% APR)
             </option>
           {% endfor %}
@@ -92,7 +92,7 @@
         
         <div class="mt-4 p-6 rounded-2xl bg-amber-500 text-slate-950 text-center shadow-lg shadow-amber-500/20">
           <div class="text-xs font-bold uppercase tracking-wider opacity-90">Equated Monthly Installment</div>
-          <div class="text-3xl sm:text-4xl font-black tracking-tight mt-1" id="calc-emi-val">$800.86</div>
+          <div class="text-3xl sm:text-4xl font-black tracking-tight mt-1" id="calc-emi-val">$800.82</div>
           <div class="text-[11px] font-semibold opacity-80 mt-1">Per Month For Selected Term</div>
         </div>
 

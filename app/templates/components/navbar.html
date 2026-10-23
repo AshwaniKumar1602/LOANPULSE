@@ -18,6 +18,9 @@
         <div class="hidden md:flex items-center space-x-1 lg:space-x-1.5 ml-6">
           
           <!-- Public / Common Links -->
+          <a href="{{ url_for('main.products') }}" class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all {% if request.endpoint == 'main.products' %}bg-amber-100/90 text-amber-900 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/80 font-bold{% else %}text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800{% endif %}">
+            <i class="fa-solid fa-layer-group mr-1 text-amber-500"></i>Products
+          </a>
           <a href="{{ url_for('main.calculator') }}" class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all {% if request.endpoint == 'main.calculator' %}bg-amber-100/90 text-amber-900 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/80 font-bold{% else %}text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800{% endif %}">
             <i class="fa-solid fa-calculator mr-1 text-amber-500"></i>Calculator
           </a>
@@ -172,6 +175,9 @@
 
   <!-- Mobile Dropdown Navigation Drawer -->
   <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-5 space-y-1.5 bg-white dark:bg-slate-900 border-b border-amber-200/80 dark:border-slate-800">
+    <a href="{{ url_for('main.products') }}" class="block px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">
+      <i class="fa-solid fa-layer-group mr-2 text-amber-500"></i>Loan Products
+    </a>
     <a href="{{ url_for('main.calculator') }}" class="block px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">
       <i class="fa-solid fa-calculator mr-2 text-amber-500"></i>Loan Calculator
     </a>
