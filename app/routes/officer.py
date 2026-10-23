@@ -89,6 +89,8 @@ def review(app_id: int):
     # Automatically advance SUBMITTED to UNDER_REVIEW on first officer inspection
     if application.status == ApplicationStatus.SUBMITTED:
         application.status = ApplicationStatus.UNDER_REVIEW
+        if not application.underwriting:
+            evaluate_loan_application(application, evaluator_id=current_user.id)
         log_audit(
             action=AuditAction.UNDERWRITING_EVALUATED,
             application_id=application.id,
@@ -115,13 +117,37 @@ def review(app_id: int):
     )
 
 
+FINAL_STATUSES = [
+    ApplicationStatus.APPROVED,
+    ApplicationStatus.DISBURSED,
+    ApplicationStatus.REJECTED,
+    ApplicationStatus.COMPLETED,
+]
+
+ALLOWED_OFFICER_ACTIONS = [
+    ApplicationStatus.RECOMMENDED_APPROVAL,
+    ApplicationStatus.RECOMMENDED_REJECTION,
+    ApplicationStatus.PENDING_DOCS,
+    ApplicationStatus.UNDER_REVIEW,
+]
+
+
 @officer_bp.route("/documents/<int:doc_id>/verify", methods=["POST"])
 def verify_document(doc_id: int):
     document = ApplicationDocument.query.get_or_404(doc_id)
+    
+    # State validation: Prevent tampering with finalized loans
+    if document.application.status in FINAL_STATUSES:
+        flash("Cannot modify verification records for finalized applications.", "danger")
+        return redirect(url_for("officer.review", app_id=document.application_id))
+
     form = DocumentVerificationForm()
 
     if form.validate_on_submit():
         new_status = form.verification_status.data
+        if new_status not in [DocumentStatus.VERIFIED, DocumentStatus.REJECTED]:
+            abort(400)
+
         notes = sanitize_input(form.verification_notes.data or "")
 
         document.verification_status = new_status
@@ -158,6 +184,12 @@ def verify_document(doc_id: int):
 @officer_bp.route("/loans/<int:app_id>/underwrite", methods=["POST"])
 def run_underwriting(app_id: int):
     application = LoanApplication.query.get_or_404(app_id)
+
+    # State validation
+    if application.status in FINAL_STATUSES:
+        flash("Finalized applications cannot be re-evaluated.", "warning")
+        return redirect(url_for("officer.review", app_id=application.id))
+
     assessment = evaluate_loan_application(application, evaluator_id=current_user.id)
 
     log_audit(
@@ -174,12 +206,20 @@ def run_underwriting(app_id: int):
 @officer_bp.route("/loans/<int:app_id>/recommend", methods=["POST"])
 def submit_recommendation(app_id: int):
     application = LoanApplication.query.get_or_404(app_id)
+
+    # State validation: Reject status transitions on finalized loans
+    if application.status in FINAL_STATUSES:
+        flash(f"Application #{application.application_number} has already received a final decision ({application.status}) and cannot be modified.", "danger")
+        return redirect(url_for("officer.review", app_id=application.id))
+
     form = OfficerRecommendationForm()
 
     if form.validate_on_submit():
         rec = form.recommendation.data
-        notes = sanitize_input(form.notes.data)
+        if rec not in ALLOWED_OFFICER_ACTIONS:
+            abort(400)
 
+        notes = sanitize_input(form.notes.data)
         old_status = application.status
         application.status = rec
 
@@ -192,7 +232,13 @@ def submit_recommendation(app_id: int):
             notes=f"Recommendation: {rec}. Officer notes: {notes}",
         )
 
-        # If more documents requested, alert customer
+        # 1. Under review notes update
+        if rec == ApplicationStatus.UNDER_REVIEW:
+            db.session.commit()
+            flash("Underwriting review notes recorded. Application remains under active review.", "info")
+            return redirect(url_for("officer.review", app_id=application.id))
+
+        # 2. Document clarification / resubmission request
         if rec == ApplicationStatus.PENDING_DOCS:
             create_notification(
                 user_id=application.customer_id,
@@ -201,9 +247,14 @@ def submit_recommendation(app_id: int):
                 notification_type=NotificationType.DOCUMENT_REQUEST,
                 link=url_for("customer.application_detail", app_id=application.id),
             )
+            db.session.commit()
+            flash("Application marked as PENDING DOCS. Customer notified to submit required documentation.", "warning")
+            return redirect(url_for("officer.dashboard"))
 
+        # 3. Forward to Loan Manager for approval or rejection
         db.session.commit()
-        flash(f"Recommendation recorded: {rec}. Application routed to Manager Queue.", "success")
+        label = "Recommended for Approval" if rec == ApplicationStatus.RECOMMENDED_APPROVAL else "Recommended for Rejection"
+        flash(f"Application #{application.application_number} successfully {label} and forwarded to Manager Approvals Queue.", "success")
         return redirect(url_for("officer.dashboard"))
 
     for field, errors in form.errors.items():

@@ -14,6 +14,12 @@ class UserRole:
     LOAN_MANAGER = "LOAN_MANAGER"
     ADMIN = "ADMIN"
 
+    # Aliases
+    ROLE_CUSTOMER = CUSTOMER
+    ROLE_LOAN_OFFICER = LOAN_OFFICER
+    ROLE_LOAN_MANAGER = LOAN_MANAGER
+    ROLE_ADMIN = ADMIN
+
     ALL_ROLES = [CUSTOMER, LOAN_OFFICER, LOAN_MANAGER, ADMIN]
 
 
@@ -69,7 +75,8 @@ class User(UserMixin, db.Model):
         return f"{self.first_name} {self.last_name}".strip()
 
     def has_role(self, *roles: str) -> bool:
-        return self.role in roles
+        normalized_roles = {r.replace("ROLE_", "") for r in roles}
+        return self.role.replace("ROLE_", "") in normalized_roles
 
     @property
     def is_customer(self) -> bool:

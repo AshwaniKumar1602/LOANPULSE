@@ -47,7 +47,7 @@
           Search Borrower or App #
         </label>
         <div class="relative">
-          <input type="text" name="q" id="q" value="{{ search_query }}" placeholder="Search by name, email, or LP-..." class="w-full rounded-xl py-2 pl-9 pr-3 text-xs border focus:ring-2 focus:ring-amber-500">
+          <input type="text" name="q" id="q" value="{{ search_query }}" placeholder="Search by name, email, or LP-..." class="w-full rounded-xl py-2 pl-9 pr-3 text-xs border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-amber-500">
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
         </div>
       </div>
@@ -57,7 +57,7 @@
         <label for="status" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
           Filter Status
         </label>
-        <select name="status" id="status" class="w-full rounded-xl py-2 px-3 text-xs border focus:ring-2 focus:ring-amber-500">
+        <select name="status" id="status" class="w-full rounded-xl py-2 px-3 text-xs border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500">
           <option value="">All Active Queue</option>
           <option value="SUBMITTED" {% if current_status == 'SUBMITTED' %}selected{% endif %}>Submitted</option>
           <option value="UNDER_REVIEW" {% if current_status == 'UNDER_REVIEW' %}selected{% endif %}>Under Review</option>
@@ -74,7 +74,7 @@
         <label for="product_id" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
           Loan Product
         </label>
-        <select name="product_id" id="product_id" class="w-full rounded-xl py-2 px-3 text-xs border focus:ring-2 focus:ring-amber-500">
+        <select name="product_id" id="product_id" class="w-full rounded-xl py-2 px-3 text-xs border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500">
           <option value="">All Products</option>
           {% for p in products %}
             <option value="{{ p.id }}" {% if current_product == p.id %}selected{% endif %}>{{ p.name }}</option>

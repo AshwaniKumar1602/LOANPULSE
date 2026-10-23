@@ -14,11 +14,12 @@ from app.models.document import DocumentStatus
 
 class OfficerRecommendationForm(FlaskForm):
     recommendation = SelectField(
-        "Officer Recommendation",
+        "Officer Action & Recommendation",
         choices=[
-            ("RECOMMENDED_APPROVAL", "Recommend for Approval"),
-            ("RECOMMENDED_REJECTION", "Recommend for Rejection"),
-            ("PENDING_DOCS", "Request More Documents / Applicant Clarification"),
+            ("RECOMMENDED_APPROVAL", "Forward to Manager: Recommend Approval"),
+            ("RECOMMENDED_REJECTION", "Forward to Manager: Recommend Rejection"),
+            ("PENDING_DOCS", "Request Document Resubmission / Clarification (Notify Borrower)"),
+            ("UNDER_REVIEW", "Save Underwriting Review Notes (Keep Under Active Review)"),
         ],
         validators=[DataRequired()],
     )
@@ -27,7 +28,7 @@ class OfficerRecommendationForm(FlaskForm):
         validators=[DataRequired(), Length(min=10, max=2000)],
         render_kw={"rows": 4, "placeholder": "Detail your rationale, risk mitigants, and verification results..."},
     )
-    submit = SubmitField("Submit Recommendation to Manager")
+    submit = SubmitField("Record Officer Assessment & Submit")
 
 
 class DocumentVerificationForm(FlaskForm):

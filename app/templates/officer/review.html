@@ -97,8 +97,8 @@
         </div>
         <div class="flex justify-between py-1">
           <dt class="text-slate-500">Composite Risk Score:</dt>
-          <dd class="font-bold px-2 py-0.5 rounded {% if application.risk_score < 40 %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300{% elif application.risk_score < 70 %}bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300{% else %}bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300{% endif %}">
-            {{ application.risk_score or 'N/A' }} / 100
+          <dd class="font-bold px-2 py-0.5 rounded {% if application.risk_score is not none and application.risk_score < 40 %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300{% elif application.risk_score is not none and application.risk_score < 70 %}bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300{% elif application.risk_score is not none %}bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300{% else %}bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400{% endif %}">
+            {% if application.risk_score is not none %}{{ application.risk_score }} / 100{% else %}Pending Assessment{% endif %}
           </dd>
         </div>
       </dl>
@@ -196,11 +196,11 @@
             <!-- Verification Action Form -->
             <form method="POST" action="{{ url_for('officer.verify_document', doc_id=doc.id) }}" class="flex items-center space-x-2">
               {{ verify_form.hidden_tag() }}
-              <input type="text" name="verification_notes" placeholder="Verification note..." value="{{ doc.verification_notes or '' }}" class="rounded-lg py-1 px-2.5 text-xs border w-36 sm:w-48">
-              <button type="submit" name="verification_status" value="VERIFIED" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors">
+              <input type="text" name="verification_notes" placeholder="Verification note..." value="{{ doc.verification_notes or '' }}" class="rounded-lg py-1 px-2.5 text-xs border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-amber-500 w-36 sm:w-48">
+              <button type="submit" name="verification_status" value="VERIFIED" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer transition-colors">
                 Accept
               </button>
-              <button type="submit" name="verification_status" value="REJECTED" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition-colors">
+              <button type="submit" name="verification_status" value="REJECTED" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white cursor-pointer transition-colors">
                 Reject
               </button>
             </form>
@@ -226,14 +226,14 @@
         <label for="{{ recommend_form.recommendation.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
           {{ recommend_form.recommendation.label.text }}
         </label>
-        {{ recommend_form.recommendation(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        {{ recommend_form.recommendation(class="w-full rounded-xl py-2.5 px-3.5 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500") }}
       </div>
 
       <div>
         <label for="{{ recommend_form.notes.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
           {{ recommend_form.notes.label.text }}
         </label>
-        {{ recommend_form.notes(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        {{ recommend_form.notes(class="w-full rounded-xl py-2.5 px-3.5 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-amber-500") }}
         {% for error in recommend_form.notes.errors %}
           <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
         {% endfor %}
