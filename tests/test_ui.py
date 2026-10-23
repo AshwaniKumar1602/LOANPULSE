@@ -2,16 +2,43 @@ from app.models.loan_product import LoanProduct
 from app.models.user import User, UserRole
 
 
-def test_index_page_responsive_render(client):
+def test_index_page_capabilities_and_cta(client):
     response = client.get("/")
     assert response.status_code == 200
     html = response.data.decode("utf-8")
-    assert "LoanPulse" in html
-    assert "Tailwind CSS CDN" in html or "tailwind.config" in html
-    # Check theme tokens present in base config
-    assert "#D97706" in html
-    assert "#F59E0B" in html
-    assert "#0F172A" in html
+
+    # Check 4 Core System Capabilities
+    assert "Loan Processing" in html
+    assert "Eligibility Calculator" in html
+    assert "Application Tracking" in html
+    assert "Automated Notifications" in html
+
+    # Check server-rendered CTAs for registration and login
+    assert "/auth/register" in html
+    assert "/auth/login" in html
+    assert "/calculator" in html
+
+    # Zero hardcoded mock credentials on landing page
+    assert "admin@example.com" not in html
+    assert "password123" not in html.lower()
+    assert "demo user" not in html.lower()
+
+
+def test_login_persona_tab_selector(client):
+    response = client.get("/auth/login")
+    assert response.status_code == 200
+    html = response.data.decode("utf-8")
+
+    # Check that 3 personas are presented
+    assert "Borrower" in html
+    assert "Loan Officer" in html
+    assert "Loan Manager" in html
+    assert "persona-tab" in html
+    assert "selectPersona" in html
+
+    # Zero mock test credentials prefilled or suggested
+    assert "demo" not in html.lower()
+    assert "testuser" not in html.lower()
 
 
 def test_calculator_page_render(client):

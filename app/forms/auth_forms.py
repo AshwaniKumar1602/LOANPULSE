@@ -1,9 +1,20 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SelectField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, Regexp
+from app.models.user import UserRole
 
 
 class LoginForm(FlaskForm):
+    role = SelectField(
+        "Sign In As",
+        choices=[
+            (UserRole.CUSTOMER, "Loan Borrower"),
+            (UserRole.LOAN_OFFICER, "Loan Officer"),
+            (UserRole.LOAN_MANAGER, "Loan Manager"),
+        ],
+        default=UserRole.CUSTOMER,
+        validators=[DataRequired()],
+    )
     email = StringField(
         "Email Address",
         validators=[DataRequired(), Email(), Length(max=255)],
@@ -15,7 +26,7 @@ class LoginForm(FlaskForm):
         render_kw={"placeholder": "••••••••", "autocomplete": "current-password"},
     )
     remember_me = BooleanField("Keep me logged in for 30 days")
-    submit = SubmitField("Sign In")
+    submit = SubmitField("Sign In to Portal")
 
 
 class RegisterForm(FlaskForm):

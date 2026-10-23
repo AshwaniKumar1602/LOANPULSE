@@ -1,103 +1,206 @@
 {% extends 'base.html' %}
-{% block title %}LoanPulse — Production Loan Lifecycle Management{% endblock %}
+{% block title %}LoanPulse — Next-Gen Loan Lifecycle Management &amp; Underwriting{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500/10 via-amber-600/5 to-transparent border border-amber-200/80 dark:border-amber-900/40 p-8 sm:p-12 lg:p-16 mb-12 shadow-sm">
-  <div class="max-w-3xl">
-    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700/60 text-amber-900 dark:text-amber-300 text-xs font-semibold mb-6">
-      <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-      <span>Next-Gen Underwriting & Portfolio Engine</span>
+<section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500/15 via-amber-600/5 to-transparent border border-amber-200/80 dark:border-amber-900/50 p-6 sm:p-12 lg:p-16 mb-16 shadow-xs">
+  
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    
+    <!-- Hero Text Copy -->
+    <div class="lg:col-span-7 space-y-6 text-left">
+      <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-700/60 text-amber-950 dark:text-amber-300 text-xs font-bold">
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <span>Institutional Lending Infrastructure</span>
+      </div>
+
+      <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
+        Precision Credit. <br>
+        <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 bg-clip-text text-transparent">Complete Loan Lifecycle.</span>
+      </h1>
+
+      <p class="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed max-w-xl">
+        LoanPulse empowers borrowers and credit institutions with end-to-end loan origination, rule-based algorithmic underwriting, KYC document verification, manager disbursement authorization, and automated amortized repayments.
+      </p>
+
+      <!-- Call to Actions -->
+      <div class="flex flex-col sm:flex-row gap-3 pt-2">
+        <a href="{{ url_for('customer.apply') if current_user.is_authenticated else url_for('auth.register') }}" class="px-6 py-3.5 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 transition-all flex items-center justify-center space-x-2">
+          <span>Apply for Financing</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+        <a href="{{ url_for('main.calculator') }}" class="px-6 py-3.5 rounded-xl text-sm font-bold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-800 dark:text-slate-200 transition-colors flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-calculator text-amber-500"></i>
+          <span>Interactive Calculator</span>
+        </a>
+        {% if not current_user.is_authenticated %}
+          <a href="{{ url_for('auth.login') }}" class="px-5 py-3.5 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:hover:text-amber-400 flex items-center justify-center">
+            Sign In &rarr;
+          </a>
+        {% endif %}
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="pt-4 border-t border-slate-200/80 dark:border-slate-800 flex flex-wrap items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-400">
+        <span class="flex items-center"><i class="fa-solid fa-shield-halved text-amber-500 mr-1.5"></i>TOTP 2FA Protected</span>
+        <span class="flex items-center"><i class="fa-solid fa-lock text-emerald-500 mr-1.5"></i>256-Bit SSL Secured</span>
+        <span class="flex items-center"><i class="fa-solid fa-database text-amber-600 mr-1.5"></i>Neon Connection Pooling</span>
+      </div>
     </div>
 
-    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight leading-tight mb-6">
-      Intelligent Lending. <br class="hidden sm:inline">
-      <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-700 bg-clip-text text-transparent">Complete Credit Control.</span>
-    </h1>
+    <!-- Hero Interactive Teaser Card -->
+    <div class="lg:col-span-5 bg-white dark:bg-slate-800 rounded-3xl border border-amber-300/80 dark:border-amber-800/80 p-6 sm:p-8 shadow-xl shadow-amber-500/5">
+      <div class="flex items-center justify-between mb-4">
+        <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Instant Estimate</span>
+        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">Live Rates</span>
+      </div>
 
-    <p class="text-base sm:text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-8">
-      LoanPulse unifies multi-product loan origination, configurable underwriting rules, secure KYC document verification, managerial approvals, and automated amortized repayments in a single production platform.
-    </p>
+      <div class="space-y-4">
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            <span>Loan Amount</span>
+            <span class="font-extrabold text-amber-600 dark:text-amber-400" id="hero-amount-val">$25,000</span>
+          </div>
+          <input type="range" id="hero-amount" min="2000" max="100000" step="1000" value="25000" class="w-full accent-amber-500 cursor-pointer">
+        </div>
 
-    <div class="flex flex-wrap gap-4">
-      <a href="{{ url_for('customer.apply') if current_user.is_authenticated else url_for('auth.register') }}" class="px-6 py-3.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 transition-all flex items-center space-x-2">
-        <span>Apply for a Loan</span>
-        <i class="fa-solid fa-arrow-right"></i>
-      </a>
-      <a href="{{ url_for('main.calculator') }}" class="px-6 py-3.5 rounded-xl text-sm font-semibold border border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 transition-colors flex items-center space-x-2">
-        <i class="fa-solid fa-calculator text-amber-500"></i>
-        <span>Explore Loan Calculator</span>
-      </a>
+        <div>
+          <div class="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            <span>Tenure (Months)</span>
+            <span class="font-extrabold text-amber-600 dark:text-amber-400" id="hero-tenure-val">36 Mos</span>
+          </div>
+          <input type="range" id="hero-tenure" min="6" max="84" step="6" value="36" class="w-full accent-amber-500 cursor-pointer">
+        </div>
+
+        <div class="p-4 rounded-2xl bg-amber-500 text-slate-950 text-center shadow-md">
+          <div class="text-[11px] font-bold uppercase tracking-wider opacity-90">Estimated Monthly EMI</div>
+          <div class="text-3xl font-black mt-0.5" id="hero-emi-val">$794.75</div>
+          <div class="text-[10px] font-semibold opacity-80 mt-0.5">Based on 9.0% Base APR</div>
+        </div>
+
+        <a href="{{ url_for('main.calculator') }}" class="block text-center text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline pt-1">
+          Open Full Reducing-Balance Calculator &rarr;
+        </a>
+      </div>
     </div>
+
   </div>
-</div>
+</section>
 
-<!-- Architecture & Workflow Highlights -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-  <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-800 flex items-center justify-center text-amber-700 dark:text-amber-400 text-xl font-bold mb-4">
-      <i class="fa-solid fa-microchip"></i>
-    </div>
-    <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">Automated Underwriting</h3>
-    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-      Rule-based financial assessment analyzing applicant credit score thresholds, debt-to-income (DTI) bounds, and EMI burden to deliver instant risk categorization.
+<!-- Core Capabilities Showcase (4 Pillars) -->
+<section class="mb-20">
+  <div class="text-center max-w-3xl mx-auto mb-12">
+    <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">End-to-End Capabilities</span>
+    <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight mt-1">
+      Engineered for Modern Credit Operations
+    </h2>
+    <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-2">
+      Everything needed to originate, evaluate, authorize, and service consumer and enterprise loans seamlessly.
     </p>
   </div>
 
-  <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-800 flex items-center justify-center text-amber-700 dark:text-amber-400 text-xl font-bold mb-4">
-      <i class="fa-solid fa-shield-halved"></i>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    
+    <!-- 1. Loan Processing -->
+    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-xs flex flex-col justify-between hover:border-amber-400 dark:hover:border-amber-600 transition-colors">
+      <div>
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 flex items-center justify-center text-xl font-bold mb-4">
+          <i class="fa-solid fa-file-signature"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Loan Processing</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Multi-step origination wizard with encrypted UUID document uploads, KYC verification, officer review queues, and managerial decision signoffs.
+        </p>
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+        Paperless Workflow &rarr;
+      </div>
     </div>
-    <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">Institutional Security</h3>
-    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-      TOTP Two-Factor Authentication (2FA) for credit staff, Argon2id hashing, isolated UUID document storage with MIME magic-header verification, and zero IDOR exposure.
-    </p>
-  </div>
 
-  <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 shadow-sm">
-    <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-800 flex items-center justify-center text-amber-700 dark:text-amber-400 text-xl font-bold mb-4">
-      <i class="fa-solid fa-calendar-check"></i>
+    <!-- 2. Eligibility & Underwriting -->
+    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-xs flex flex-col justify-between hover:border-amber-400 dark:hover:border-amber-600 transition-colors">
+      <div>
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 flex items-center justify-center text-xl font-bold mb-4">
+          <i class="fa-solid fa-calculator"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Eligibility Calculator</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Reducing-balance amortization simulation evaluating Debt-to-Income (DTI), EMI-to-income ratios, and algorithmic composite risk scores.
+        </p>
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+        Transparent Math &rarr;
+      </div>
     </div>
-    <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">Disbursement & Repayment</h3>
-    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-      Manager-authorized fund transfer workflows automatically generate precision reducing-balance EMI amortization schedules and monitor delinquency triggers.
-    </p>
-  </div>
-</div>
 
-<!-- Available Loan Products Section -->
-<div id="products" class="mb-16">
+    <!-- 3. Lifecycle Tracking -->
+    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-xs flex flex-col justify-between hover:border-amber-400 dark:hover:border-amber-600 transition-colors">
+      <div>
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 flex items-center justify-center text-xl font-bold mb-4">
+          <i class="fa-solid fa-timeline"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Application Tracking</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Interactive status stepper providing real-time visibility from initial Draft through Under Review, Approved, Disbursed, and Settled.
+        </p>
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+        Audit Verified &rarr;
+      </div>
+    </div>
+
+    <!-- 4. Notifications & Alerts -->
+    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 shadow-xs flex flex-col justify-between hover:border-amber-400 dark:hover:border-amber-600 transition-colors">
+      <div>
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-800 text-amber-700 dark:text-amber-400 flex items-center justify-center text-xl font-bold mb-4">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mb-2">Automated Notifications</h3>
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+          Targeted in-app notifications and status updates for document verification, manager credit determinations, and upcoming EMI schedules.
+        </p>
+      </div>
+      <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+        Instant Alerts &rarr;
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Active Loan Product Catalog Section -->
+<section id="products" class="mb-20">
   <div class="flex flex-col md:flex-row md:items-end justify-between mb-8">
     <div>
-      <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Credit Catalog</span>
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">Active Loan Products</h2>
+      <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Product Offerings</span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mt-1">Available Credit Lines</h2>
     </div>
-    <p class="text-xs text-slate-600 dark:text-slate-400 max-w-md mt-2 md:mt-0">
-      Transparent interest rates and flexible tenures tailored for personal, mortgage, auto, and enterprise financing.
+    <p class="text-xs text-slate-500 max-w-md mt-2 md:mt-0">
+      Configure flexible tenures and prime APRs suited for retail borrowers and commercial enterprises.
     </p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     {% for product in products %}
-      <div class="flex flex-col rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:border-amber-400 dark:hover:border-amber-600 transition-all group">
-        <div class="flex items-center justify-between mb-4">
+      <div class="flex flex-col rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 p-6 shadow-xs hover:border-amber-400 dark:hover:border-amber-600 transition-all group">
+        <div class="flex items-center justify-between mb-3">
           <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700">
             {{ product.base_interest_rate }}% APR
           </span>
           <span class="text-xs font-semibold text-slate-500">{{ product.min_tenure_months }}-{{ product.max_tenure_months }} mos</span>
         </div>
 
-        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors mb-2">
+        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors mb-2">
           {{ product.name }}
         </h3>
 
-        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-6 flex-1">
+        <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-5 flex-1">
           {{ product.description }}
         </p>
 
-        <div class="border-t border-slate-100 dark:border-slate-700/60 pt-4 mb-5 space-y-1.5 text-xs">
+        <div class="border-t border-slate-100 dark:border-slate-700/60 pt-3 mb-4 space-y-1.5 text-xs">
           <div class="flex justify-between">
-            <span class="text-slate-500">Min - Max Borrowing:</span>
+            <span class="text-slate-500">Principal Range:</span>
             <span class="font-bold text-slate-800 dark:text-slate-200">${{ "{:,.0f}".format(product.min_amount) }} - ${{ "{:,.0f}".format(product.max_amount) }}</span>
           </div>
           <div class="flex justify-between">
@@ -105,20 +208,78 @@
             <span class="font-bold text-slate-800 dark:text-slate-200">{{ product.min_credit_score }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-slate-500">Max Allowable DTI:</span>
+            <span class="text-slate-500">Max DTI Ceiling:</span>
             <span class="font-bold text-slate-800 dark:text-slate-200">{{ product.max_dti_ratio }}%</span>
           </div>
         </div>
 
-        <a href="{{ url_for('customer.apply', product_id=product.id) if current_user.is_authenticated else url_for('auth.register') }}" class="w-full py-2.5 rounded-lg text-center text-xs font-bold bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white dark:bg-slate-700 dark:hover:bg-amber-500 dark:hover:text-slate-950 transition-colors">
+        <a href="{{ url_for('customer.apply', product_id=product.id) if current_user.is_authenticated else url_for('auth.register') }}" class="w-full py-2.5 rounded-xl text-center text-xs font-bold bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white dark:bg-slate-700 dark:hover:bg-amber-500 dark:hover:text-slate-950 transition-colors">
           Apply For {{ product.name.split()[0] }}
         </a>
       </div>
     {% else %}
       <div class="col-span-4 text-center py-12 text-slate-500">
-        No active loan products currently configured.
+        No loan products are currently open for applications.
       </div>
     {% endfor %}
   </div>
-</div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="rounded-3xl bg-gradient-to-r from-amber-600 to-amber-700 p-8 sm:p-12 text-center text-slate-950 shadow-lg shadow-amber-500/20 mb-12">
+  <h2 class="text-2xl sm:text-4xl font-black tracking-tight mb-3">
+    Ready to originate or manage loans with confidence?
+  </h2>
+  <p class="text-xs sm:text-sm font-semibold opacity-90 max-w-xl mx-auto mb-6">
+    Register as a borrower to apply in minutes, or sign in to your credit officer or managerial control portal.
+  </p>
+  <div class="flex flex-wrap justify-center gap-3">
+    <a href="{{ url_for('auth.register') }}" class="px-6 py-3.5 rounded-xl text-sm font-bold bg-slate-950 hover:bg-slate-900 text-white shadow-md transition-all">
+      Create Borrower Account
+    </a>
+    <a href="{{ url_for('auth.login') }}" class="px-6 py-3.5 rounded-xl text-sm font-bold bg-white/90 hover:bg-white text-slate-950 shadow-md transition-all">
+      Sign In by Persona
+    </a>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Hero Live Interactive Calculator Slider Logic
+  function updateHeroCalc() {
+    const amountSlider = document.getElementById("hero-amount");
+    const tenureSlider = document.getElementById("hero-tenure");
+    const amountVal = document.getElementById("hero-amount-val");
+    const tenureVal = document.getElementById("hero-tenure-val");
+    const emiVal = document.getElementById("hero-emi-val");
+
+    if (!amountSlider || !tenureSlider) return;
+
+    const principal = parseFloat(amountSlider.value) || 25000;
+    const tenure = parseInt(tenureSlider.value, 10) || 36;
+    const rate = 9.0; // Standard 9% base APR demo
+
+    if (amountVal) amountVal.textContent = "$" + principal.toLocaleString();
+    if (tenureVal) tenureVal.textContent = tenure + " Mos";
+
+    const monthlyRate = (rate / 100.0) / 12.0;
+    const factor = Math.pow(1 + monthlyRate, tenure);
+    const emi = (principal * monthlyRate * factor) / (factor - 1);
+
+    if (emiVal) {
+      emiVal.textContent = "$" + emi.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const amt = document.getElementById("hero-amount");
+    const ten = document.getElementById("hero-tenure");
+    if (amt && ten) {
+      amt.addEventListener("input", updateHeroCalc);
+      ten.addEventListener("input", updateHeroCalc);
+      updateHeroCalc();
+    }
+  });
+</script>
 {% endblock %}

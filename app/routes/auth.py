@@ -55,14 +55,20 @@ def register():
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
-@limiter.limit("10 per minute")
+@limiter.limit("15 per minute")
 def login():
     if current_user.is_authenticated:
         return _redirect_by_role(current_user)
 
     form = LoginForm()
+    # Pre-select role if passed in query string (e.g. /auth/login?role=LOAN_OFFICER)
+    query_role = request.args.get("role", "").strip()
+    if request.method == "GET" and query_role in [UserRole.CUSTOMER, UserRole.LOAN_OFFICER, UserRole.LOAN_MANAGER]:
+        form.role.data = query_role
+
     if form.validate_on_submit():
         email = sanitize_input(form.email.data.strip().lower())
+        selected_role = form.role.data
         user = User.query.filter_by(email=email).first()
 
         if not user or not user.check_password(form.password.data):
@@ -71,6 +77,29 @@ def login():
 
         if not user.is_active:
             flash("This account has been deactivated. Please contact support.", "danger")
+            return render_template("auth/login.html", form=form)
+
+        # Strict Single-Identity Role Enforcement (Phase 2 Requirement)
+        role_display_names = {
+            UserRole.CUSTOMER: "Loan Borrower",
+            UserRole.LOAN_OFFICER: "Loan Officer",
+            UserRole.LOAN_MANAGER: "Loan Manager",
+            UserRole.ADMIN: "Loan Manager / Administrator",
+        }
+
+        # Check if database role matches selected persona
+        is_role_match = (
+            user.role == selected_role
+            or (selected_role == UserRole.LOAN_MANAGER and user.role == UserRole.ADMIN)
+        )
+
+        if not is_role_match:
+            user_label = role_display_names.get(user.role, user.role)
+            selected_label = role_display_names.get(selected_role, selected_role)
+            flash(
+                f"Role authorization error: This account is registered as a {user_label} and cannot access the {selected_label} portal. Please select '{user_label}' to sign in.",
+                "danger",
+            )
             return render_template("auth/login.html", form=form)
 
         # Clear session to prevent session fixation attacks

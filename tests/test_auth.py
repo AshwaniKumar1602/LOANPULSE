@@ -1,3 +1,4 @@
+from app.extensions import db
 from app.models.user import User, UserRole
 from app.utils.security import generate_totp_secret, verify_totp_token
 import pyotp
@@ -46,3 +47,77 @@ def test_customer_registration_endpoint(client, app):
         assert user is not None
         assert user.role == UserRole.CUSTOMER
         assert user.customer_profile is not None
+
+
+def test_single_identity_role_enforcement_mismatch(client, app):
+    """
+    Phase 2 requirement:
+    Backend login authentication must verify that the user's assigned database role
+    matches the selected role on the sign-in form. Reject authentication with an
+    explicit error message if the roles do not match.
+    """
+    with app.app_context():
+        borrower = User(
+            email="borrower.test@example.com",
+            first_name="Carl",
+            last_name="Borrower",
+            role=UserRole.CUSTOMER,
+            is_active=True,
+        )
+        borrower.set_password("Password123!")
+        db.session.add(borrower)
+
+        officer = User(
+            email="officer.test@example.com",
+            first_name="Olivia",
+            last_name="Officer",
+            role=UserRole.LOAN_OFFICER,
+            is_active=True,
+        )
+        officer.set_password("Password123!")
+        db.session.add(officer)
+        db.session.commit()
+
+    # 1. Borrower tries to sign in as Loan Officer -> MUST FAIL
+    res1 = client.post(
+        "/auth/login",
+        data={
+            "role": UserRole.LOAN_OFFICER,
+            "email": "borrower.test@example.com",
+            "password": "Password123!",
+        },
+        follow_redirects=True,
+    )
+    assert res1.status_code == 200
+    html1 = res1.data.decode("utf-8")
+    assert "Role authorization error" in html1
+    assert "registered as a Loan Borrower and cannot access the Loan Officer portal" in html1
+
+    # 2. Officer tries to sign in as Loan Borrower -> MUST FAIL
+    res2 = client.post(
+        "/auth/login",
+        data={
+            "role": UserRole.CUSTOMER,
+            "email": "officer.test@example.com",
+            "password": "Password123!",
+        },
+        follow_redirects=True,
+    )
+    assert res2.status_code == 200
+    html2 = res2.data.decode("utf-8")
+    assert "Role authorization error" in html2
+    assert "registered as a Loan Officer and cannot access the Loan Borrower portal" in html2
+
+    # 3. Borrower signs in as Loan Borrower -> MUST SUCCEED
+    res3 = client.post(
+        "/auth/login",
+        data={
+            "role": UserRole.CUSTOMER,
+            "email": "borrower.test@example.com",
+            "password": "Password123!",
+        },
+        follow_redirects=True,
+    )
+    assert res3.status_code == 200
+    html3 = res3.data.decode("utf-8")
+    assert "Welcome back, Carl!" in html3
