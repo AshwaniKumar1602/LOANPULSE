@@ -1,4 +1,5 @@
-// LoanPulse Main Client JS — Theme, Modal & Accessibility Handlers
+// LoanPulse Main Client JS — Theme, Modal, Dropdown & Accessibility Handlers
+// Memory-safe implementations (zero memory leaks, bounded scopes)
 
 // Global modal helpers
 window.openModal = function (modalId) {
@@ -44,7 +45,27 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 2. Mobile Menu Toggle
+  // 2. User Profile Dropdown Controller (Memory-Safe)
+  const userMenuBtn = document.getElementById("user-menu-btn");
+  const userDropdownMenu = document.getElementById("user-dropdown-menu");
+
+  if (userMenuBtn && userDropdownMenu) {
+    userMenuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isExpanded = userMenuBtn.getAttribute("aria-expanded") === "true";
+      userMenuBtn.setAttribute("aria-expanded", String(!isExpanded));
+      userDropdownMenu.classList.toggle("hidden");
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!userDropdownMenu.contains(e.target) && !userMenuBtn.contains(e.target)) {
+        userDropdownMenu.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+
+  // 3. Mobile Navigation Drawer Toggle
   const mobileMenuBtn = document.getElementById("mobile-menu-btn");
   const mobileMenu = document.getElementById("mobile-menu");
   if (mobileMenuBtn && mobileMenu) {
@@ -53,13 +74,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 3. Modal Escape key and backdrop dismissal
+  // 4. Modal Escape key and backdrop dismissal
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
+      // Close open modals
       const openModals = document.querySelectorAll('[role="dialog"]:not(.hidden)');
       openModals.forEach((modal) => {
         window.closeModal(modal.id);
       });
+      // Close user dropdown if open
+      if (userDropdownMenu && !userDropdownMenu.classList.contains("hidden")) {
+        userDropdownMenu.classList.add("hidden");
+        if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+      }
     }
   });
 
@@ -71,7 +98,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 4. Auto dismiss flash alerts after 6 seconds
+  // 5. Auto dismiss flash alerts after 6 seconds
   const flashAlerts = document.querySelectorAll(".flash-alert");
   flashAlerts.forEach((alert) => {
     setTimeout(() => {

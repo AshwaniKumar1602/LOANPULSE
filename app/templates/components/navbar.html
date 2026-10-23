@@ -1,6 +1,6 @@
-<nav class="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-amber-200/60 dark:border-slate-800 transition-colors">
+<nav class="sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-amber-200/80 dark:border-slate-800 transition-colors shadow-xs">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16">
+    <div class="flex justify-between h-16 items-center">
       
       <!-- Brand Logo -->
       <div class="flex items-center space-x-3">
@@ -10,59 +10,67 @@
           </div>
           <div>
             <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Loan<span class="text-amber-600 dark:text-amber-500">Pulse</span></span>
-            <span class="hidden sm:inline-block text-[10px] tracking-wider font-semibold uppercase px-1.5 py-0.5 rounded ml-1 bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300">LoanMaster</span>
+            <span class="hidden sm:inline-block text-[10px] tracking-wider font-semibold uppercase px-1.5 py-0.5 rounded ml-1 bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800">LoanMaster</span>
           </div>
         </a>
 
-        <!-- Desktop Navigation Links -->
-        <div class="hidden md:flex md:space-x-1 lg:space-x-2 ml-6">
-          <a href="{{ url_for('main.calculator') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800 transition-colors">
-            <i class="fa-solid fa-calculator mr-1.5 text-amber-500"></i>Calculator
+        <!-- Desktop Role-Aware Navigation Links -->
+        <div class="hidden md:flex items-center space-x-1 lg:space-x-1.5 ml-6">
+          
+          <!-- Public / Common Links -->
+          <a href="{{ url_for('main.calculator') }}" class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all {% if request.endpoint == 'main.calculator' %}bg-amber-100/90 text-amber-900 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/80 font-bold{% else %}text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800{% endif %}">
+            <i class="fa-solid fa-calculator mr-1 text-amber-500"></i>Calculator
           </a>
 
           {% if current_user.is_authenticated %}
+            <!-- 1. Customer (Loan Borrower) Workspace -->
             {% if current_user.is_customer %}
-              <a href="{{ url_for('customer.dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800 transition-colors">
-                <i class="fa-solid fa-gauge mr-1.5 text-amber-500"></i>My Loans
+              <a href="{{ url_for('customer.dashboard') }}" class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all {% if request.endpoint in ['customer.dashboard', 'customer.application_detail'] %}bg-amber-100/90 text-amber-900 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/80 font-bold{% else %}text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800{% endif %}">
+                <i class="fa-solid fa-gauge mr-1 text-amber-500"></i>My Loans
               </a>
-              <a href="{{ url_for('customer.apply') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800 transition-colors">
-                <i class="fa-solid fa-file-circle-plus mr-1.5 text-amber-500"></i>Apply Now
+              <a href="{{ url_for('customer.apply') }}" class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all {% if request.endpoint == 'customer.apply' %}bg-amber-100/90 text-amber-900 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/80 font-bold{% else %}text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800{% endif %}">
+                <i class="fa-solid fa-file-circle-plus mr-1 text-amber-500"></i>Apply Now
               </a>
+
+            <!-- 2. Loan Officer Workspace -->
             {% elif current_user.is_officer %}
-              <a href="{{ url_for('officer.dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800 transition-colors">
-                <i class="fa-solid fa-list-check mr-1.5 text-amber-500"></i>Underwriting Queue
+              <a href="{{ url_for('officer.dashboard') }}" class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all {% if request.endpoint in ['officer.dashboard', 'officer.review'] %}bg-amber-100/90 text-amber-900 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/80 font-bold{% else %}text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800{% endif %}">
+                <i class="fa-solid fa-list-check mr-1 text-amber-500"></i>Underwriting Queue
               </a>
+
+            <!-- 3. Loan Manager Workspace -->
             {% elif current_user.is_manager %}
-              <a href="{{ url_for('manager.dashboard') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800 transition-colors">
-                <i class="fa-solid fa-chart-pie mr-1.5 text-amber-500"></i>Portfolio KPIs
+              <a href="{{ url_for('manager.dashboard') }}" class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all {% if request.endpoint == 'manager.dashboard' %}bg-amber-100/90 text-amber-900 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/80 font-bold{% else %}text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800{% endif %}">
+                <i class="fa-solid fa-chart-pie mr-1 text-amber-500"></i>Portfolio KPIs
               </a>
-              <a href="{{ url_for('manager.approvals') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800 transition-colors">
-                <i class="fa-solid fa-stamp mr-1.5 text-amber-500"></i>Approvals
+              <a href="{{ url_for('manager.approvals') }}" class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all {% if request.endpoint in ['manager.approvals', 'manager.decision', 'manager.disburse'] %}bg-amber-100/90 text-amber-900 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/80 font-bold{% else %}text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800{% endif %}">
+                <i class="fa-solid fa-stamp mr-1 text-amber-500"></i>Approvals
               </a>
-              <a href="{{ url_for('manager.products') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800 transition-colors">
-                <i class="fa-solid fa-layer-group mr-1.5 text-amber-500"></i>Products
+              <a href="{{ url_for('manager.products') }}" class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all {% if request.endpoint in ['manager.products', 'manager.create_product', 'manager.edit_product'] %}bg-amber-100/90 text-amber-900 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/80 font-bold{% else %}text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800{% endif %}">
+                <i class="fa-solid fa-layer-group mr-1 text-amber-500"></i>Products
               </a>
-              <a href="{{ url_for('manager.audit_logs') }}" class="px-3 py-2 rounded-lg text-sm font-medium text-slate-700 hover:text-amber-600 hover:bg-amber-50 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800 transition-colors">
-                <i class="fa-solid fa-shield-halved mr-1.5 text-amber-500"></i>Audit Trail
+              <a href="{{ url_for('manager.audit_logs') }}" class="px-3 py-1.5 rounded-xl text-xs font-medium transition-all {% if request.endpoint == 'manager.audit_logs' %}bg-amber-100/90 text-amber-900 border border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-700/80 font-bold{% else %}text-slate-700 hover:text-amber-700 hover:bg-amber-50/60 dark:text-slate-300 dark:hover:text-amber-400 dark:hover:bg-slate-800{% endif %}">
+                <i class="fa-solid fa-shield-halved mr-1 text-amber-500"></i>Audit Trail
               </a>
             {% endif %}
           {% endif %}
+
         </div>
       </div>
 
-      <!-- Right Action Items -->
-      <div class="flex items-center space-x-3">
+      <!-- Right Header Actions -->
+      <div class="flex items-center space-x-2.5 sm:space-x-3">
         
-        <!-- Dark / Light Theme Toggle -->
-        <button id="theme-toggle" type="button" aria-label="Toggle dark mode" class="w-9 h-9 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors">
+        <!-- Dark / Light Mode Toggle Button -->
+        <button id="theme-toggle" type="button" aria-label="Toggle dark mode" class="w-9 h-9 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-colors">
           <i class="fa-solid fa-moon hidden dark:block text-amber-400"></i>
           <i class="fa-solid fa-sun block dark:hidden text-amber-600"></i>
         </button>
 
         {% if current_user.is_authenticated %}
-          <!-- Unread Notifications Indicator -->
+          <!-- Unread Notifications Icon -->
           <div class="relative">
-            <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300">
+            <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
               <i class="fa-regular fa-bell"></i>
               {% if unread_notifs_count > 0 %}
                 <span class="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-slate-950">
@@ -72,57 +80,146 @@
             </span>
           </div>
 
-          <!-- User Identity Pill -->
-          <div class="hidden sm:flex items-center space-x-2 pl-2 border-l border-slate-200 dark:border-slate-800">
-            <div class="text-right">
-              <div class="text-xs font-semibold text-slate-900 dark:text-slate-100">{{ current_user.full_name }}</div>
-              <div class="text-[10px] font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wider">{{ current_user.role.replace('_', ' ') }}</div>
-            </div>
-            <div class="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-950 border border-amber-300 dark:border-amber-700 flex items-center justify-center text-amber-800 dark:text-amber-300 font-bold text-xs">
-              {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+          <!-- User Identity Menu & Dropdown -->
+          <div class="relative">
+            <button id="user-menu-btn" type="button" aria-expanded="false" aria-haspopup="true" class="flex items-center space-x-2 py-1 px-2 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-600/80 transition-all cursor-pointer">
+              <div class="w-7 h-7 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center shadow-xs">
+                {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+              </div>
+              <div class="hidden sm:block text-left text-xs">
+                <span class="font-bold text-slate-900 dark:text-slate-100 block leading-tight">{{ current_user.first_name }}</span>
+                <span class="text-[10px] text-amber-700 dark:text-amber-400 font-semibold uppercase">
+                  {% if current_user.is_customer %}Borrower{% elif current_user.is_officer %}Officer{% else %}Manager{% endif %}
+                </span>
+              </div>
+              <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+            </button>
+
+            <!-- Profile Dropdown (Light/Dark Contrast Verified) -->
+            <div id="user-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl py-2 z-50 transition-all">
+              <div class="px-4 py-2 border-b border-slate-100 dark:border-slate-700">
+                <div class="text-xs font-bold text-slate-900 dark:text-slate-100">{{ current_user.full_name }}</div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 truncate">{{ current_user.email }}</div>
+                <div class="mt-1">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300">
+                    {{ current_user.role.replace('_', ' ') }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="py-1 text-xs">
+                {% if current_user.is_customer %}
+                  <a href="{{ url_for('customer.dashboard') }}" class="flex items-center px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-700">
+                    <i class="fa-solid fa-gauge mr-2.5 text-amber-500"></i>Borrower Dashboard
+                  </a>
+                {% elif current_user.is_officer %}
+                  <a href="{{ url_for('officer.dashboard') }}" class="flex items-center px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-700">
+                    <i class="fa-solid fa-list-check mr-2.5 text-amber-500"></i>Underwriting Workspace
+                  </a>
+                {% elif current_user.is_manager %}
+                  <a href="{{ url_for('manager.dashboard') }}" class="flex items-center px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-700">
+                    <i class="fa-solid fa-chart-pie mr-2.5 text-amber-500"></i>Portfolio Operations
+                  </a>
+                {% endif %}
+
+                <a href="{{ url_for('auth.mfa_setup') }}" class="flex items-center justify-between px-4 py-2 text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-700">
+                  <span class="flex items-center"><i class="fa-solid fa-shield-halved mr-2.5 text-amber-500"></i>Two-Factor 2FA</span>
+                  {% if current_user.totp_enabled %}
+                    <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">&check; Enabled</span>
+                  {% else %}
+                    <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400">Setup</span>
+                  {% endif %}
+                </a>
+              </div>
+
+              <!-- CSRF-Protected Logout Action (Phase 3 Requirement) -->
+              <div class="pt-1 border-t border-slate-100 dark:border-slate-700 px-2">
+                <form method="POST" action="{{ url_for('auth.logout') }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="w-full flex items-center px-2.5 py-1.5 rounded-lg text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer">
+                    <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>
+                    Sign Out Safely
+                  </button>
+                </form>
+              </div>
+
             </div>
           </div>
 
-          <a href="{{ url_for('auth.logout') }}" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors">
-            <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i>Sign Out
-          </a>
         {% else %}
-          <a href="{{ url_for('auth.login') }}" class="px-3.5 py-2 text-sm font-medium text-slate-700 hover:text-amber-600 dark:text-slate-200 dark:hover:text-amber-400 transition-colors">
+          <a href="{{ url_for('auth.login') }}" class="px-3 py-2 text-xs font-semibold text-slate-700 hover:text-amber-700 dark:text-slate-200 dark:hover:text-amber-400 transition-colors">
             Sign In
           </a>
-          <a href="{{ url_for('auth.register') }}" class="px-4 py-2 text-sm font-semibold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition-all">
+          <a href="{{ url_for('auth.register') }}" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition-all">
             Get Started
           </a>
         {% endif %}
 
         <!-- Mobile Menu Hamburger Button -->
-        <button id="mobile-menu-btn" type="button" aria-label="Open menu" class="md:hidden w-9 h-9 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
-          <i class="fa-solid fa-bars"></i>
+        <button id="mobile-menu-btn" type="button" aria-label="Open mobile navigation" class="md:hidden w-9 h-9 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center">
+          <i class="fa-solid fa-bars text-sm"></i>
         </button>
 
       </div>
     </div>
   </div>
 
-  <!-- Mobile Dropdown Menu -->
-  <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-4 space-y-1 bg-white dark:bg-slate-900 border-b border-amber-200/60 dark:border-slate-800">
-    <a href="{{ url_for('main.calculator') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">Loan Calculator</a>
+  <!-- Mobile Dropdown Navigation Drawer -->
+  <div id="mobile-menu" class="hidden md:hidden px-4 pt-2 pb-5 space-y-1.5 bg-white dark:bg-slate-900 border-b border-amber-200/80 dark:border-slate-800">
+    <a href="{{ url_for('main.calculator') }}" class="block px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">
+      <i class="fa-solid fa-calculator mr-2 text-amber-500"></i>Loan Calculator
+    </a>
+
     {% if current_user.is_authenticated %}
+      <div class="pt-2 pb-1 text-[11px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider px-3">
+        Workspace Menu
+      </div>
+
       {% if current_user.is_customer %}
-        <a href="{{ url_for('customer.dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">My Applications</a>
-        <a href="{{ url_for('customer.apply') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">Apply for Loan</a>
+        <a href="{{ url_for('customer.dashboard') }}" class="block px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-gauge mr-2 text-amber-500"></i>My Loans &amp; Applications
+        </a>
+        <a href="{{ url_for('customer.apply') }}" class="block px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-file-circle-plus mr-2 text-amber-500"></i>Apply for Financing
+        </a>
       {% elif current_user.is_officer %}
-        <a href="{{ url_for('officer.dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">Underwriting Queue</a>
+        <a href="{{ url_for('officer.dashboard') }}" class="block px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-list-check mr-2 text-amber-500"></i>Underwriting Queue
+        </a>
       {% elif current_user.is_manager %}
-        <a href="{{ url_for('manager.dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">Portfolio KPIs</a>
-        <a href="{{ url_for('manager.approvals') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">Approvals Queue</a>
-        <a href="{{ url_for('manager.products') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">Product Settings</a>
-        <a href="{{ url_for('manager.audit_logs') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">Audit Logs</a>
+        <a href="{{ url_for('manager.dashboard') }}" class="block px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-chart-pie mr-2 text-amber-500"></i>Portfolio Operations
+        </a>
+        <a href="{{ url_for('manager.approvals') }}" class="block px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-stamp mr-2 text-amber-500"></i>Approvals Queue
+        </a>
+        <a href="{{ url_for('manager.products') }}" class="block px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-layer-group mr-2 text-amber-500"></i>Product Catalog
+        </a>
+        <a href="{{ url_for('manager.audit_logs') }}" class="block px-3 py-2 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800">
+          <i class="fa-solid fa-shield-halved mr-2 text-amber-500"></i>Audit Trail
+        </a>
       {% endif %}
-      <a href="{{ url_for('auth.logout') }}" class="block px-3 py-2 rounded-md text-base font-medium text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800">Sign Out</a>
+
+      <!-- Mobile CSRF Protected Logout -->
+      <div class="pt-3 border-t border-slate-200 dark:border-slate-800 px-3">
+        <form method="POST" action="{{ url_for('auth.logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="w-full flex items-center justify-center py-2.5 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40">
+            <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i>Sign Out
+          </button>
+        </form>
+      </div>
+
     {% else %}
-      <a href="{{ url_for('auth.login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-amber-50">Sign In</a>
-      <a href="{{ url_for('auth.register') }}" class="block px-3 py-2 rounded-md text-base font-medium text-amber-600 dark:text-amber-400 font-semibold">Create Free Account</a>
+      <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex flex-col space-y-2">
+        <a href="{{ url_for('auth.login') }}" class="text-center py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-amber-50 dark:hover:bg-slate-800 rounded-xl">
+          Sign In
+        </a>
+        <a href="{{ url_for('auth.register') }}" class="text-center py-2 text-xs font-bold bg-amber-500 text-slate-950 rounded-xl">
+          Create Free Account
+        </a>
+      </div>
     {% endif %}
   </div>
 </nav>

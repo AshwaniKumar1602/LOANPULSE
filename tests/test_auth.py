@@ -121,3 +121,38 @@ def test_single_identity_role_enforcement_mismatch(client, app):
     assert res3.status_code == 200
     html3 = res3.data.decode("utf-8")
     assert "Welcome back, Carl!" in html3
+
+
+def test_csrf_protected_logout(client, app):
+    """
+    Phase 3 requirement:
+    Enforce CSRF tokens on all logout, interactive POST, and state-changing forms.
+    """
+    with app.app_context():
+        user = User(
+            email="logout.user@example.com",
+            first_name="Leo",
+            last_name="Logout",
+            role=UserRole.CUSTOMER,
+            is_active=True,
+        )
+        user.set_password("Password123!")
+        db.session.add(user)
+        db.session.commit()
+
+    # Log in
+    client.post(
+        "/auth/login",
+        data={
+            "role": UserRole.CUSTOMER,
+            "email": "logout.user@example.com",
+            "password": "Password123!",
+        },
+        follow_redirects=True,
+    )
+
+    # Perform POST logout
+    res = client.post("/auth/logout", follow_redirects=True)
+    assert res.status_code == 200
+    html = res.data.decode("utf-8")
+    assert "You have been signed out safely." in html

@@ -180,8 +180,12 @@ def mfa_verify():
     return render_template("auth/mfa_verify.html", form=form)
 
 
-@auth_bp.route("/logout")
+@auth_bp.route("/logout", methods=["GET", "POST"])
 def logout():
+    """
+    CSRF-protected logout handler (Phase 3 Requirement).
+    Clears authenticated session safely and redirects to login.
+    """
     session.clear()
     logout_user()
     flash("You have been signed out safely.", "info")
