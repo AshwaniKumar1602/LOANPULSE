@@ -59,7 +59,7 @@
         <div>
           <div class="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
             <span>Loan Amount</span>
-            <span class="font-extrabold text-amber-600 dark:text-amber-400" id="hero-amount-val">$25,000</span>
+            <span class="font-extrabold text-amber-600 dark:text-amber-400" id="hero-amount-val">₹25,000</span>
           </div>
           <input type="range" id="hero-amount" min="2000" max="100000" step="1000" value="25000" class="w-full accent-amber-500 cursor-pointer">
         </div>
@@ -74,7 +74,7 @@
 
         <div class="p-4 rounded-2xl bg-amber-500 text-slate-950 text-center shadow-md">
           <div class="text-[11px] font-bold uppercase tracking-wider opacity-90">Estimated Monthly EMI</div>
-          <div class="text-3xl font-black mt-0.5" id="hero-emi-val">$794.75</div>
+          <div class="text-3xl font-black mt-0.5" id="hero-emi-val">₹794.75</div>
           <div class="text-[10px] font-semibold opacity-80 mt-0.5">Based on 9.0% Base APR</div>
         </div>
 
@@ -201,7 +201,7 @@
         <div class="border-t border-slate-100 dark:border-slate-700/60 pt-3 mb-4 space-y-1.5 text-xs">
           <div class="flex justify-between">
             <span class="text-slate-500">Principal Range:</span>
-            <span class="font-bold text-slate-800 dark:text-slate-200">${{ "{:,.0f}".format(product.min_amount) }} - ${{ "{:,.0f}".format(product.max_amount) }}</span>
+            <span class="font-bold text-slate-800 dark:text-slate-200">{{ product.min_amount | inr_currency }} - {{ product.max_amount | inr_currency }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-slate-500">Min Credit Score:</span>
@@ -260,7 +260,7 @@
     const tenure = parseInt(tenureSlider.value, 10) || 36;
     const rate = 9.0; // Standard 9% base APR demo
 
-    if (amountVal) amountVal.textContent = "$" + principal.toLocaleString();
+    if (amountVal) amountVal.textContent = "₹" + principal.toLocaleString("en-IN");
     if (tenureVal) tenureVal.textContent = tenure + " Mos";
 
     const monthlyRate = (rate / 100.0) / 12.0;
@@ -268,7 +268,7 @@
     const emi = (principal * monthlyRate * factor) / (factor - 1);
 
     if (emiVal) {
-      emiVal.textContent = "$" + emi.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      emiVal.textContent = "₹" + emi.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
   }
 

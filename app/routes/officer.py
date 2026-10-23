@@ -88,7 +88,7 @@ def review(app_id: int):
 
     # Automatically advance SUBMITTED to UNDER_REVIEW on first officer inspection
     if application.status == ApplicationStatus.SUBMITTED:
-        application.status = ApplicationStatus.UNDER_REVIEW
+        application.transition_to(ApplicationStatus.UNDER_REVIEW)
         if not application.underwriting:
             evaluate_loan_application(application, evaluator_id=current_user.id)
         log_audit(
@@ -221,7 +221,11 @@ def submit_recommendation(app_id: int):
 
         notes = sanitize_input(form.notes.data)
         old_status = application.status
-        application.status = rec
+        try:
+            application.transition_to(rec)
+        except ValueError as err:
+            flash(str(err), "danger")
+            return redirect(url_for("officer.review", app_id=application.id))
 
         log_audit(
             action=AuditAction.OFFICER_RECOMMENDATION,

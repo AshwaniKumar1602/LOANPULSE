@@ -31,6 +31,13 @@ def create_app(config_name=None):
     def load_user(user_id):
         return db.session.get(User, int(user_id))
 
+    # Register Jinja2 template filters (Phase 8: Standardized INR Currency Formatting)
+    from app.utils.formatters import inr_currency
+
+    app.jinja_env.filters["inr_currency"] = inr_currency
+    app.jinja_env.filters["inr"] = inr_currency
+    app.context_processor(lambda: {"inr_currency": inr_currency, "format_inr": inr_currency})
+
     # Render Optimization (Rule #2): Explicitly remove db session to prevent connection pool leaks
     @app.teardown_appcontext
     def teardown_db_context(exception=None):
@@ -85,9 +92,10 @@ def create_app(config_name=None):
     # Global Template Context Processor
     @app.context_processor
     def inject_global_vars():
+        from flask import has_request_context
         from flask_login import current_user
         unread_notifs_count = 0
-        if current_user.is_authenticated:
+        if has_request_context() and hasattr(current_user, "is_authenticated") and current_user.is_authenticated:
             try:
                 unread_notifs_count = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
             except Exception:

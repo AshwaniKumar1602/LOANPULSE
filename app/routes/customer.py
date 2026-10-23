@@ -21,6 +21,7 @@ from app.models.repayment import RepaymentSchedule, RepaymentStatus
 from app.models.audit import AuditAction
 from app.models.notification import Notification, NotificationType
 from app.forms.loan_forms import LoanApplicationForm, DocumentUploadForm, RepaymentPaymentForm
+from app.utils.formatters import inr_currency
 from app.utils.decorators import role_required
 from app.utils.security import mask_identifier, sanitize_input
 from app.services.underwriting_engine import evaluate_loan_application
@@ -94,6 +95,7 @@ def apply():
 
     if form.validate_on_submit():
         product = LoanProduct.query.get_or_404(form.product_id.data)
+        is_draft = bool(request.form.get("action") == "draft" or (form.save_draft.data and not form.submit.data))
 
         # Update customer profile financials
         profile = current_user.customer_profile
@@ -101,6 +103,9 @@ def apply():
         profile.annual_income = float(form.monthly_income.data) * 12.0
         profile.monthly_debt = float(form.existing_monthly_debt.data or 0.0)
         profile.tax_id_masked = mask_identifier(form.tax_id.data)
+
+        initial_status = ApplicationStatus.DRAFT if is_draft else ApplicationStatus.SUBMITTED
+        submitted_ts = None if is_draft else datetime.now(timezone.utc)
 
         # Create application scoped to current_user.id
         application = LoanApplication(
@@ -112,13 +117,25 @@ def apply():
             monthly_income_declared=form.monthly_income.data,
             existing_monthly_debt=form.existing_monthly_debt.data or 0.0,
             purpose=sanitize_input(form.purpose.data or ""),
-            status=ApplicationStatus.SUBMITTED,
-            submitted_at=datetime.now(timezone.utc),
+            status=initial_status,
+            submitted_at=submitted_ts,
         )
         db.session.add(application)
         db.session.commit()
 
-        # Execute automated rule-based underwriting assessment
+        if is_draft:
+            log_audit(
+                action=AuditAction.DRAFT_SAVED,
+                application_id=application.id,
+                actor_id=current_user.id,
+                previous_status=None,
+                new_status=ApplicationStatus.DRAFT,
+                notes=f"Draft application created for {inr_currency(application.requested_amount)} under {product.name}.",
+            )
+            flash(f"Application #{application.application_number} saved as draft! You can edit and submit it anytime.", "info")
+            return redirect(url_for("customer.application_detail", app_id=application.id))
+
+        # Execute automated rule-based underwriting assessment for submitted applications
         assessment = evaluate_loan_application(application)
 
         # Log audit trail
@@ -128,13 +145,13 @@ def apply():
             actor_id=current_user.id,
             previous_status=ApplicationStatus.DRAFT,
             new_status=ApplicationStatus.SUBMITTED,
-            notes=f"Application submitted for ${application.requested_amount} under {product.name}. Auto-evaluation: {assessment.overall_result}",
+            notes=f"Application submitted for {inr_currency(application.requested_amount)} under {product.name}. Auto-evaluation: {assessment.overall_result}",
         )
 
         create_notification(
             user_id=current_user.id,
             title="Application Submitted Successfully",
-            message=f"Your application #{application.application_number} has been submitted and is in review.",
+            message=f"Your application #{application.application_number} for {inr_currency(application.requested_amount)} has been submitted and is in review.",
             notification_type=NotificationType.APPLICATION_STATUS,
             link=url_for("customer.application_detail", app_id=application.id),
         )
@@ -143,6 +160,119 @@ def apply():
         return redirect(url_for("customer.application_detail", app_id=application.id))
 
     return render_template("customer/apply.html", form=form, products=products)
+
+
+@customer_bp.route("/loans/<int:app_id>/edit", methods=["GET", "POST"])
+def edit_draft(app_id: int):
+    """Allows borrowers to edit draft applications before submission."""
+    application = LoanApplication.query.filter_by(id=app_id, customer_id=current_user.id).first_or_404()
+    if application.status != ApplicationStatus.DRAFT:
+        flash("Only draft applications can be edited.", "warning")
+        return redirect(url_for("customer.application_detail", app_id=application.id))
+
+    products = LoanProduct.query.filter_by(is_active=True).order_by(LoanProduct.name.asc()).all()
+    form = LoanApplicationForm(obj=application)
+    form.product_id.choices = [(p.id, f"{p.name} (APR: {p.base_interest_rate}%)") for p in products]
+
+    if request.method == "GET":
+        form.product_id.data = application.product_id
+        profile = current_user.customer_profile
+        if profile and profile.employment_type:
+            form.employment_type.data = profile.employment_type
+        form.monthly_income.data = application.monthly_income_declared
+        form.existing_monthly_debt.data = application.existing_monthly_debt
+        form.purpose.data = application.purpose
+
+    if form.validate_on_submit():
+        product = LoanProduct.query.get_or_404(form.product_id.data)
+        is_draft = bool(request.form.get("action") == "draft" or (form.save_draft.data and not form.submit.data))
+
+        application.product_id = product.id
+        application.requested_amount = form.requested_amount.data
+        application.tenure_months = form.tenure_months.data
+        application.interest_rate = product.base_interest_rate
+        application.monthly_income_declared = form.monthly_income.data
+        application.existing_monthly_debt = form.existing_monthly_debt.data or 0.0
+        application.purpose = sanitize_input(form.purpose.data or "")
+
+        # Update profile
+        profile = current_user.customer_profile
+        if profile:
+            profile.employment_type = form.employment_type.data
+            profile.annual_income = float(form.monthly_income.data) * 12.0
+            profile.monthly_debt = float(form.existing_monthly_debt.data or 0.0)
+            profile.tax_id_masked = mask_identifier(form.tax_id.data)
+
+        if is_draft:
+            log_audit(
+                action=AuditAction.DRAFT_SAVED,
+                application_id=application.id,
+                actor_id=current_user.id,
+                previous_status=ApplicationStatus.DRAFT,
+                new_status=ApplicationStatus.DRAFT,
+                notes=f"Draft application updated. Amount: {inr_currency(application.requested_amount)}.",
+            )
+            db.session.commit()
+            flash("Draft application updated successfully.", "info")
+            return redirect(url_for("customer.application_detail", app_id=application.id))
+        else:
+            application.transition_to(ApplicationStatus.SUBMITTED)
+            application.submitted_at = datetime.now(timezone.utc)
+            assessment = evaluate_loan_application(application)
+            log_audit(
+                action=AuditAction.APPLICATION_SUBMITTED,
+                application_id=application.id,
+                actor_id=current_user.id,
+                previous_status=ApplicationStatus.DRAFT,
+                new_status=ApplicationStatus.SUBMITTED,
+                notes=f"Draft application submitted for review for {inr_currency(application.requested_amount)} under {product.name}. Auto-evaluation: {assessment.overall_result}",
+            )
+            create_notification(
+                user_id=current_user.id,
+                title="Application Submitted Successfully",
+                message=f"Your application #{application.application_number} for {inr_currency(application.requested_amount)} has been submitted and is in review.",
+                notification_type=NotificationType.APPLICATION_STATUS,
+                link=url_for("customer.application_detail", app_id=application.id),
+            )
+            db.session.commit()
+            flash(f"Application #{application.application_number} submitted! Please upload required KYC documents.", "success")
+            return redirect(url_for("customer.application_detail", app_id=application.id))
+
+    return render_template("customer/apply.html", form=form, products=products, is_edit=True, application=application)
+
+
+@customer_bp.route("/loans/<int:app_id>/resubmit", methods=["POST"])
+def resubmit(app_id: int):
+    """Allows borrowers to resubmit an application after uploading required documents."""
+    application = LoanApplication.query.filter_by(id=app_id, customer_id=current_user.id).first_or_404()
+    if application.status != ApplicationStatus.PENDING_DOCS:
+        flash("Only applications awaiting document resubmission can be resubmitted.", "warning")
+        return redirect(url_for("customer.application_detail", app_id=application.id))
+
+    old_status = application.status
+    application.transition_to(ApplicationStatus.UNDER_REVIEW)
+    assessment = evaluate_loan_application(application)
+
+    log_audit(
+        action=AuditAction.APPLICATION_RESUBMITTED,
+        application_id=application.id,
+        actor_id=current_user.id,
+        previous_status=old_status,
+        new_status=ApplicationStatus.UNDER_REVIEW,
+        notes=f"Customer uploaded requested documents and resubmitted application for underwriting review. Rule evaluation: {assessment.overall_result}",
+    )
+
+    create_notification(
+        user_id=application.customer_id,
+        title="Application Resubmitted",
+        message=f"Application #{application.application_number} has been resubmitted with updated documents and is back under active officer review.",
+        notification_type=NotificationType.APPLICATION_STATUS,
+        link=url_for("customer.application_detail", app_id=application.id),
+    )
+
+    db.session.commit()
+    flash("Application and documents successfully resubmitted for officer review.", "success")
+    return redirect(url_for("customer.application_detail", app_id=application.id))
 
 
 @customer_bp.route("/loans/<int:app_id>")
@@ -293,18 +423,18 @@ def pay_installment(schedule_id: int):
                 action=AuditAction.REPAYMENT_RECORDED,
                 application_id=schedule.application_id,
                 actor_id=current_user.id,
-                notes=f"Customer paid ${amount_to_pay:.2f} for Installment #{schedule.installment_number} via {form.payment_method.data}. TXN: {txn.transaction_ref}",
+                notes=f"Customer paid {inr_currency(amount_to_pay)} for Installment #{schedule.installment_number} via {form.payment_method.data}. TXN: {txn.transaction_ref}",
             )
 
             create_notification(
                 user_id=current_user.id,
                 title="Repayment Received",
-                message=f"Your payment of ${amount_to_pay:.2f} (Ref: {txn.transaction_ref}) was received successfully.",
+                message=f"Your payment of {inr_currency(amount_to_pay)} (Ref: {txn.transaction_ref}) was received successfully.",
                 notification_type=NotificationType.EMI_DUE,
                 link=url_for("customer.repayment_schedule", app_id=schedule.application_id),
             )
 
-            flash(f"Payment of ${amount_to_pay:.2f} processed successfully! Reference: {txn.transaction_ref}", "success")
+            flash(f"Payment of {inr_currency(amount_to_pay)} processed successfully! Reference: {txn.transaction_ref}", "success")
             return redirect(url_for("customer.repayment_schedule", app_id=schedule.application_id))
         except Exception as e:
             flash(f"Payment failed: {str(e)}", "danger")

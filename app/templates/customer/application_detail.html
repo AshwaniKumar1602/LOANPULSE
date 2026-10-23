@@ -27,8 +27,47 @@
           <span>View Repayment Schedule</span>
         </a>
       </div>
+    {% elif application.status == 'DRAFT' %}
+      <div class="flex">
+        <a href="{{ url_for('customer.edit_draft', app_id=application.id) }}" class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition-all flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span>Edit &amp; Submit Draft</span>
+        </a>
+      </div>
     {% endif %}
   </div>
+
+  <!-- Status Notification Alerts -->
+  {% if application.status == 'PENDING_DOCS' %}
+    <div class="rounded-2xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700/80 p-5 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <div class="flex items-center space-x-2 text-amber-900 dark:text-amber-200 font-bold text-sm">
+          <i class="fa-solid fa-triangle-exclamation text-amber-500"></i>
+          <span>Action Required: Document Resubmission Requested</span>
+        </div>
+        <p class="text-xs text-amber-800 dark:text-amber-300 mt-1">
+          Your loan officer requested updated or replacement documentation. Please review the comments in the table below, upload the required files, and click resubmit.
+        </p>
+      </div>
+      <form method="POST" action="{{ url_for('customer.resubmit', app_id=application.id) }}" class="w-full sm:w-auto">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 cursor-pointer transition-all flex items-center justify-center space-x-1.5 whitespace-nowrap">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>Resubmit for Review</span>
+        </button>
+      </form>
+    </div>
+  {% elif application.status == 'REJECTED' %}
+    <div class="rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 p-5 shadow-sm">
+      <div class="flex items-center space-x-2 text-rose-900 dark:text-rose-200 font-bold text-sm">
+        <i class="fa-solid fa-circle-xmark text-rose-600"></i>
+        <span>Application Not Approved</span>
+      </div>
+      <p class="text-xs text-rose-800 dark:text-rose-300 mt-1">
+        This loan application was evaluated and declined during institutional underwriting. You can review the officer remarks and audit history below.
+      </p>
+    </div>
+  {% endif %}
 
   <!-- Interactive Workflow Stepper -->
   <div class="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 sm:p-6 shadow-sm">
@@ -97,12 +136,12 @@
         </div>
         <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-700/60">
           <dt class="text-slate-500">Requested Principal:</dt>
-          <dd class="font-extrabold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(application.requested_amount) }}</dd>
+          <dd class="font-extrabold text-slate-900 dark:text-slate-100">{{ application.requested_amount | inr_currency }}</dd>
         </div>
         <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-700/60">
           <dt class="text-slate-500">Approved Principal:</dt>
           <dd class="font-extrabold text-emerald-600 dark:text-emerald-400">
-            {% if application.approved_amount %}${{ "{:,.2f}".format(application.approved_amount) }}{% else %}Pending Decision{% endif %}
+            {% if application.approved_amount %}{{ application.approved_amount | inr_currency }}{% else %}Pending Decision{% endif %}
           </dd>
         </div>
         <div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-700/60">
@@ -114,8 +153,8 @@
           <dd class="font-bold text-amber-600 dark:text-amber-400">{{ application.interest_rate }}%</dd>
         </div>
         <div class="flex justify-between py-1">
-          <dt class="text-slate-500">Monthly EMI Estimate:</dt>
-          <dd class="font-black text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(application.calculate_estimated_monthly_emi()) }}/mo</dd>
+          <dt class="text-slate-500">Monthly EMI Commitment:</dt>
+          <dd class="font-black text-slate-900 dark:text-slate-100">{{ application.calculate_estimated_monthly_emi() | inr_currency }}/mo</dd>
         </div>
       </dl>
     </div>

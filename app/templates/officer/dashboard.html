@@ -125,7 +125,7 @@
                 {{ app.product.name }}
               </td>
               <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
-                ${{ "{:,.2f}".format(app.requested_amount) }}
+                {{ app.requested_amount | inr_currency }}
               </td>
               <td class="px-5 py-3.5 whitespace-nowrap">
                 {% if app.risk_score %}

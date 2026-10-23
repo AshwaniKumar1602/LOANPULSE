@@ -1,5 +1,32 @@
 // Interactive Loan EMI Calculator
 
+function formatINR(val) {
+  if (val === null || val === undefined || isNaN(val)) return "₹0.00";
+  const num = Math.round(Number(val) * 100) / 100;
+  const parts = Math.abs(num).toFixed(2).split(".");
+  let intPart = parts[0];
+  const decPart = parts[1];
+  const isNegative = num < 0;
+
+  if (intPart.length > 3) {
+    const lastThree = intPart.substring(intPart.length - 3);
+    const otherNumbers = intPart.substring(0, intPart.length - 3);
+    const pairs = [];
+    let rem = otherNumbers;
+    while (rem.length > 0) {
+      if (rem.length > 2) {
+        pairs.unshift(rem.substring(rem.length - 2));
+        rem = rem.substring(0, rem.length - 2);
+      } else {
+        pairs.unshift(rem);
+        rem = "";
+      }
+    }
+    intPart = pairs.join(",") + "," + lastThree;
+  }
+  return (isNegative ? "-₹" : "₹") + intPart + "." + decPart;
+}
+
 function calculateLoanEMI(amount, annualRate, tenureMonths) {
   if (amount <= 0 || tenureMonths <= 0) return { emi: 0, totalInterest: 0, totalPayment: 0 };
   const monthlyRate = annualRate / 100.0 / 12.0;
@@ -36,10 +63,10 @@ function updateCalculatorDisplay() {
 
   if (rateVal) rateVal.textContent = rate + "%";
   if (tenureVal) tenureVal.textContent = tenure + " Mos";
-  if (emiEl) emiEl.textContent = "$" + result.emi.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  if (interestEl) interestEl.textContent = "$" + result.totalInterest.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  if (paymentEl) paymentEl.textContent = "$" + result.totalPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  if (principalEl) principalEl.textContent = "$" + amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (emiEl) emiEl.textContent = formatINR(result.emi);
+  if (interestEl) interestEl.textContent = formatINR(result.totalInterest);
+  if (paymentEl) paymentEl.textContent = formatINR(result.totalPayment);
+  if (principalEl) principalEl.textContent = formatINR(amount);
 
   // Update visual distribution bar
   const principalBar = document.getElementById("calc-bar-principal");

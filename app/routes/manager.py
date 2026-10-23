@@ -26,6 +26,7 @@ from app.forms.management_forms import (
 )
 from app.utils.decorators import role_required, mfa_enforced_for_staff
 from app.utils.security import mask_identifier, sanitize_input
+from app.utils.formatters import inr_currency
 from app.services.audit_service import log_audit
 from app.services.notification_service import create_notification
 from app.services.repayment_engine import generate_amortization_schedule, refresh_overdue_schedules
@@ -161,15 +162,20 @@ def decision(app_id: int):
         remarks = sanitize_input(form.remarks.data)
         old_status = application.status
 
+        target_status = ApplicationStatus.APPROVED if decision_choice == "APPROVE" else ApplicationStatus.REJECTED
+        try:
+            application.transition_to(target_status)
+        except ValueError as err:
+            flash(str(err), "danger")
+            return redirect(url_for("manager.approvals"))
+
         if decision_choice == "APPROVE":
-            application.status = ApplicationStatus.APPROVED
             application.approved_amount = form.approved_amount.data
             application.interest_rate = form.interest_rate.data
             action = AuditAction.MANAGER_APPROVED
-            notif_msg = f"Congratulations! Your loan #{application.application_number} has been APPROVED for ${form.approved_amount.data} at {form.interest_rate.data}% APR."
+            notif_msg = f"Congratulations! Your loan #{application.application_number} has been APPROVED for {inr_currency(form.approved_amount.data)} at {form.interest_rate.data}% APR."
             flash_msg = f"Application #{application.application_number} officially APPROVED. Ready for disbursement."
         else:
-            application.status = ApplicationStatus.REJECTED
             action = AuditAction.MANAGER_REJECTED
             notif_msg = f"Your loan application #{application.application_number} has been rejected. Remarks: {remarks}"
             flash_msg = f"Application #{application.application_number} REJECTED."
@@ -245,7 +251,11 @@ def disburse(app_id: int):
 
         # Update application status
         old_status = application.status
-        application.status = ApplicationStatus.DISBURSED
+        try:
+            application.transition_to(ApplicationStatus.DISBURSED)
+        except ValueError as err:
+            flash(str(err), "danger")
+            return redirect(url_for("manager.approvals"))
 
         # Generate Amortization Schedule
         schedules = generate_amortization_schedule(application)
@@ -256,13 +266,13 @@ def disburse(app_id: int):
             actor_id=current_user.id,
             previous_status=old_status,
             new_status=ApplicationStatus.DISBURSED,
-            notes=f"Disbursed ${amount:.2f} via {disb_method} to {bank_name} ({mask_identifier(raw_account)}). Ref: {disbursement.disbursement_reference}. Generated {len(schedules)} EMI installments.",
+            notes=f"Disbursed {inr_currency(amount)} via {disb_method} to {bank_name} ({mask_identifier(raw_account)}). Ref: {disbursement.disbursement_reference}. Generated {len(schedules)} EMI installments.",
         )
 
         create_notification(
             user_id=application.customer_id,
             title="Loan Funds Disbursed!",
-            message=f"Loan #{application.application_number} funds of ${amount:.2f} have been disbursed to your account. Your EMI repayment schedule is now active.",
+            message=f"Loan #{application.application_number} funds of {inr_currency(amount)} have been disbursed to your account. Your EMI repayment schedule is now active.",
             notification_type=NotificationType.DISBURSEMENT,
             link=url_for("customer.repayment_schedule", app_id=application.id),
         )

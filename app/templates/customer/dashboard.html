@@ -30,7 +30,7 @@
           <i class="fa-solid fa-vault"></i>
         </div>
       </div>
-      <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(total_borrowed) }}</div>
+      <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">{{ total_borrowed | inr_currency }}</div>
       <p class="text-xs text-slate-500 mt-1">{{ active_loans|length }} active disbursed credit line(s)</p>
     </div>
 
@@ -43,7 +43,7 @@
         </div>
       </div>
       {% if next_emi %}
-        <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(next_emi.total_installment) }}</div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">{{ next_emi.total_installment | inr_currency }}</div>
         <div class="flex items-center justify-between mt-2">
           <span class="text-xs font-medium text-slate-500">Due: <strong class="text-amber-700 dark:text-amber-400">{{ next_emi.due_date.strftime('%b %d, %Y') }}</strong></span>
           <a href="{{ url_for('customer.pay_installment', schedule_id=next_emi.id) }}" class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950">
@@ -136,18 +136,23 @@
                 {{ app.product.name }}
               </td>
               <td class="px-5 py-4 font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
-                ${{ "{:,.2f}".format(app.requested_amount) }}
+                {{ app.requested_amount | inr_currency }}
               </td>
               <td class="px-5 py-4 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                 {{ app.tenure_months }} mos
               </td>
               <td class="px-5 py-4 text-amber-700 dark:text-amber-400 font-bold whitespace-nowrap">
-                ${{ "{:,.2f}".format(app.calculate_estimated_monthly_emi()) }}/mo
+                {{ app.calculate_estimated_monthly_emi() | inr_currency }}/mo
               </td>
               <td class="px-5 py-4 whitespace-nowrap">
                 {{ render_status_badge(app.status) }}
               </td>
               <td class="px-5 py-4 text-right space-x-2 whitespace-nowrap">
+                {% if app.status == 'DRAFT' %}
+                  <a href="{{ url_for('customer.edit_draft', app_id=app.id) }}" class="inline-block px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
+                    <i class="fa-solid fa-pen-to-square mr-1"></i>Edit Draft
+                  </a>
+                {% endif %}
                 <a href="{{ url_for('customer.application_detail', app_id=app.id) }}" class="inline-block px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-amber-500 hover:text-slate-950 text-slate-800 dark:text-slate-200 transition-colors">
                   Details &amp; Docs
                 </a>

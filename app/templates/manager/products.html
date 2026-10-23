@@ -43,7 +43,7 @@
                 {{ prod.name }}
               </td>
               <td class="px-5 py-4 font-mono whitespace-nowrap">
-                ${{ "{:,.0f}".format(prod.min_amount) }} - ${{ "{:,.0f}".format(prod.max_amount) }}
+                {{ prod.min_amount | inr_currency }} - {{ prod.max_amount | inr_currency }}
               </td>
               <td class="px-5 py-4 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                 {{ prod.min_tenure_months }} - {{ prod.max_tenure_months }} mos

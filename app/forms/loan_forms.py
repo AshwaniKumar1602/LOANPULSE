@@ -16,12 +16,12 @@ class LoanApplicationForm(FlaskForm):
     product_id = SelectField("Loan Product", coerce=int, validators=[DataRequired()])
     
     requested_amount = DecimalField(
-        "Requested Loan Amount ($)",
+        "Requested Loan Amount (₹)",
         validators=[
             DataRequired(),
-            NumberRange(min=500.0, max=5000000.0, message="Amount must be between $500 and $5,000,000."),
+            NumberRange(min=500.0, max=50000000.0, message="Amount must be between ₹500 and ₹5,00,00,000."),
         ],
-        render_kw={"placeholder": "25000.00", "step": "100"},
+        render_kw={"placeholder": "250000.00", "step": "1000"},
     )
     
     tenure_months = IntegerField(
@@ -34,28 +34,28 @@ class LoanApplicationForm(FlaskForm):
     )
     
     monthly_income = DecimalField(
-        "Verified Monthly Income ($)",
+        "Verified Monthly Income (₹)",
         validators=[
             DataRequired(),
-            NumberRange(min=100.0, message="Monthly income must be at least $100."),
+            NumberRange(min=100.0, message="Monthly income must be at least ₹100."),
         ],
-        render_kw={"placeholder": "5500.00", "step": "50"},
+        render_kw={"placeholder": "50000.00", "step": "1000"},
     )
     
     existing_monthly_debt = DecimalField(
-        "Existing Monthly Debt Obligations ($)",
+        "Existing Monthly Debt Obligations (₹)",
         validators=[
             Optional(),
             NumberRange(min=0.0, message="Debt cannot be negative."),
         ],
         default=0.00,
-        render_kw={"placeholder": "0.00", "step": "25"},
+        render_kw={"placeholder": "0.00", "step": "500"},
     )
     
     tax_id = StringField(
-        "Tax ID / PAN / SSN",
+        "Tax ID / PAN (Permanent Account Number)",
         validators=[DataRequired(), Length(min=4, max=30)],
-        render_kw={"placeholder": "ABCDE1234F or XXX-XX-1234"},
+        render_kw={"placeholder": "ABCDE1234F"},
     )
     
     employment_type = SelectField(
@@ -75,6 +75,7 @@ class LoanApplicationForm(FlaskForm):
         render_kw={"rows": 3, "placeholder": "Describe what you plan to fund with this loan..."},
     )
     
+    save_draft = SubmitField("Save as Draft")
     submit = SubmitField("Submit Application for Review")
 
 
@@ -104,16 +105,17 @@ class DocumentUploadForm(FlaskForm):
 
 class RepaymentPaymentForm(FlaskForm):
     amount = DecimalField(
-        "Payment Amount ($)",
+        "Payment Amount (₹)",
         validators=[DataRequired(), NumberRange(min=1.0)],
         render_kw={"placeholder": "0.00", "step": "0.01"},
     )
     payment_method = SelectField(
         "Payment Method",
         choices=[
-            ("ONLINE_BANKING", "Online ACH Bank Transfer"),
-            ("DEBIT_CARD", "Debit Card"),
-            ("WIRE", "Wire Transfer"),
+            ("UPI", "UPI (Google Pay / PhonePe / Paytm / BHIM)"),
+            ("NET_BANKING", "Net Banking (IMPS / NEFT)"),
+            ("DEBIT_CARD", "Debit Card / RuPay"),
+            ("NACH_MANDATE", "Auto-Debit NACH e-Mandate"),
         ],
         validators=[DataRequired()],
     )

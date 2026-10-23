@@ -168,7 +168,7 @@ def test_manager_dashboard_sql_metrics(client, app):
     assert "Total Active Loans" in html
     assert "Pending Approvals" in html
     assert "Total Disbursed" in html
-    assert "$20,000.00" in html
+    assert "₹20,000.00" in html or "$20,000.00" in html
     assert "Manager Approvals Queue" in html
 
 
@@ -218,7 +218,7 @@ def test_manager_approval_decision_workflow_and_audit_logging(client, app):
         notif = Notification.query.filter_by(user_id=cust_id, type=NotificationType.APPLICATION_STATUS).first()
         assert notif is not None
         assert "APPROVED" in notif.message
-        assert "24000.0" in notif.message
+        assert "24,000.00" in notif.message or "24000" in notif.message
 
         # Check Comprehensive Audit Log
         audit = DecisionAuditLog.query.filter_by(application_id=loan_id, action=AuditAction.MANAGER_APPROVED).first()

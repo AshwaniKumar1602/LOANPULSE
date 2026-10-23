@@ -58,9 +58,9 @@ class ManagerDecisionForm(FlaskForm):
         validators=[DataRequired()],
     )
     approved_amount = DecimalField(
-        "Approved Principal ($)",
+        "Approved Principal (₹)",
         validators=[Optional(), NumberRange(min=0.0)],
-        render_kw={"step": "100"},
+        render_kw={"step": "1000", "placeholder": "250000.00"},
     )
     interest_rate = DecimalField(
         "Final Annual Interest Rate (%)",
@@ -81,7 +81,7 @@ class ManagerDecisionForm(FlaskForm):
 
         if self.decision.data == "APPROVE":
             if not self.approved_amount.data or float(self.approved_amount.data) < 100.0:
-                self.approved_amount.errors.append("Approved principal must be at least $100.00.")
+                self.approved_amount.errors.append("Approved principal must be at least ₹100.00.")
                 return False
             if not self.interest_rate.data or float(self.interest_rate.data) < 1.0:
                 self.interest_rate.errors.append("Final interest rate must be at least 1.0% APR.")
@@ -93,7 +93,7 @@ class DisbursementForm(FlaskForm):
     bank_name = StringField(
         "Beneficiary Bank Name",
         validators=[DataRequired(), Length(max=100)],
-        render_kw={"placeholder": "Chase / Bank of America / Wells Fargo"},
+        render_kw={"placeholder": "State Bank of India / HDFC Bank / ICICI Bank"},
     )
     bank_account = StringField(
         "Beneficiary Account Number",
@@ -101,17 +101,17 @@ class DisbursementForm(FlaskForm):
         render_kw={"placeholder": "1234567890"},
     )
     bank_routing = StringField(
-        "Routing Number / IFSC Code",
+        "Bank IFSC Code",
         validators=[DataRequired(), Length(min=4, max=20)],
-        render_kw={"placeholder": "021000021"},
+        render_kw={"placeholder": "SBIN0001234 or HDFC0001234"},
     )
     disbursement_method = SelectField(
         "Disbursement Channel",
         choices=[
-            ("DIRECT_DEPOSIT", "Direct ACH Deposit"),
-            ("BANK_TRANSFER", "Domestic Wire / Transfer"),
-            ("NEFT_RTGS", "NEFT / RTGS"),
-            ("CHEQUE", "Cashier Check"),
+            ("NEFT_RTGS", "NEFT / RTGS Electronic Transfer"),
+            ("IMPS", "IMPS Instant Transfer"),
+            ("DIRECT_DEPOSIT", "Direct Account Credit"),
+            ("CHEQUE", "Banker's Demand Draft / Cheque"),
         ],
         validators=[DataRequired()],
     )
@@ -139,14 +139,14 @@ class LoanProductForm(FlaskForm):
         default="PERSONAL",
         validators=[DataRequired()],
     )
-    min_amount = DecimalField("Min Loan Amount ($)", validators=[DataRequired(), NumberRange(min=100.0)], render_kw={"step": "100"})
-    max_amount = DecimalField("Max Loan Amount ($)", validators=[DataRequired(), NumberRange(min=500.0)], render_kw={"step": "500"})
+    min_amount = DecimalField("Min Loan Amount (₹)", validators=[DataRequired(), NumberRange(min=100.0)], render_kw={"step": "1000"})
+    max_amount = DecimalField("Max Loan Amount (₹)", validators=[DataRequired(), NumberRange(min=500.0)], render_kw={"step": "5000"})
     min_tenure_months = IntegerField("Min Tenure (Months)", validators=[DataRequired(), NumberRange(min=1)], render_kw={"placeholder": "e.g. 6"})
     max_tenure_months = IntegerField("Max Tenure (Months)", validators=[DataRequired(), NumberRange(min=1)], render_kw={"placeholder": "e.g. 60"})
     base_interest_rate = DecimalField("Base Annual Rate (% APR)", validators=[DataRequired(), NumberRange(min=0.1, max=100.0)], render_kw={"step": "0.05", "placeholder": "e.g. 10.50"})
     min_credit_score = IntegerField("Min Credit Score", validators=[DataRequired(), NumberRange(min=300, max=850)], default=650)
     max_dti_ratio = DecimalField("Max Allowable DTI (%)", validators=[DataRequired(), NumberRange(min=10.0, max=100.0)], default=50.00, render_kw={"step": "1.0"})
-    min_income_required = DecimalField("Min Monthly Income ($)", validators=[DataRequired(), NumberRange(min=0.0)], default=2000.00, render_kw={"step": "100"})
+    min_income_required = DecimalField("Min Monthly Income (₹)", validators=[DataRequired(), NumberRange(min=0.0)], default=25000.00, render_kw={"step": "1000"})
     moratorium_months = IntegerField("Moratorium Period (Months)", validators=[Optional(), NumberRange(min=0, max=36)], default=0)
     processing_speed = SelectField(
         "Processing Speed SLA",

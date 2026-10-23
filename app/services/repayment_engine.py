@@ -4,6 +4,8 @@ from app.models.repayment import RepaymentSchedule, PaymentTransaction, Repaymen
 from app.models.loan_application import LoanApplication, ApplicationStatus
 from app.models.audit import AuditAction
 from app.services.audit_service import log_audit
+from app.services.calculator_service import calculate_amortization_schedule_decimal
+from app.utils.formatters import inr_currency
 
 
 def add_months_to_date(source_date: date, months: int) -> date:
@@ -17,49 +19,40 @@ def add_months_to_date(source_date: date, months: int) -> date:
 
 def generate_amortization_schedule(application: LoanApplication, disbursement_date: date = None) -> list[RepaymentSchedule]:
     """
-    Generates standard reducing-balance monthly repayment schedule for an approved loan.
+    Generates standard reducing-balance monthly repayment schedule for an approved loan
+    using exact Python Decimal arithmetic and standard financial rounding (ROUND_HALF_UP).
     """
     if not disbursement_date:
         disbursement_date = date.today()
 
-    principal = float(application.approved_amount or application.requested_amount)
-    annual_rate = float(application.interest_rate)
+    principal = application.approved_amount or application.requested_amount
+    annual_rate = application.interest_rate
     tenure_months = int(application.tenure_months)
+    moratorium = int(getattr(application.product, "moratorium_months", 0) or 0)
 
-    emi = application.calculate_estimated_monthly_emi()
-    monthly_rate = (annual_rate / 100.0) / 12.0
+    # Use exact Decimal calculation engine with standard financial rounding
+    decimal_result = calculate_amortization_schedule_decimal(
+        principal=principal,
+        annual_rate=annual_rate,
+        tenure_months=tenure_months,
+        moratorium_months=moratorium,
+    )
 
     # Clean existing schedules if regenerating
     RepaymentSchedule.query.filter_by(application_id=application.id).delete()
 
     schedules = []
-    current_principal = principal
-
-    for i in range(1, tenure_months + 1):
+    for item in decimal_result["schedule"]:
+        i = item["month"]
         due_date = add_months_to_date(disbursement_date, i)
-
-        interest_component = round(current_principal * monthly_rate, 2)
-        principal_component = round(emi - interest_component, 2)
-
-        # For the final installment, balance exactly to zero
-        if i == tenure_months or principal_component > current_principal:
-            principal_component = round(current_principal, 2)
-            total_installment = round(principal_component + interest_component, 2)
-            remaining = 0.00
-        else:
-            total_installment = round(emi, 2)
-            remaining = round(current_principal - principal_component, 2)
-
-        current_principal = remaining
-
         schedule_row = RepaymentSchedule(
             application_id=application.id,
             installment_number=i,
             due_date=due_date,
-            principal_amount=principal_component,
-            interest_amount=interest_component,
-            total_installment=total_installment,
-            remaining_principal=remaining,
+            principal_amount=float(item["principal_component"]),
+            interest_amount=float(item["interest_component"]),
+            total_installment=float(item["installment"]),
+            remaining_principal=float(item["remaining_balance"]),
             paid_amount=0.00,
             status=RepaymentStatus.UPCOMING,
         )
@@ -120,14 +113,17 @@ def record_repayment(
 
     if unpaid_count == 0:
         old_status = app.status
-        app.status = ApplicationStatus.COMPLETED
+        try:
+            app.transition_to(ApplicationStatus.COMPLETED)
+        except ValueError:
+            app.status = ApplicationStatus.COMPLETED
         log_audit(
             action=AuditAction.APPLICATION_CLOSED,
             application_id=app.id,
             actor_id=customer_id,
             previous_status=old_status,
             new_status=ApplicationStatus.COMPLETED,
-            notes="All loan repayment installments settled in full. Loan marked COMPLETED.",
+            notes=f"All loan repayment installments settled in full ({inr_currency(schedule.total_installment)} final payment). Loan marked COMPLETED.",
         )
 
     db.session.commit()

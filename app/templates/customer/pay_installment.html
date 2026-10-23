@@ -16,21 +16,21 @@
     <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 mb-6 space-y-2 text-xs">
       <div class="flex justify-between">
         <span class="text-slate-600 dark:text-slate-400">Total Installment (EMI):</span>
-        <span class="font-bold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(schedule.total_installment) }}</span>
+        <span class="font-bold text-slate-900 dark:text-slate-100">{{ schedule.total_installment | inr_currency }}</span>
       </div>
       {% if schedule.penalty_applied > 0 %}
         <div class="flex justify-between text-rose-600 font-bold">
           <span>Late Penalty Fee:</span>
-          <span>+${{ "{:,.2f}".format(schedule.penalty_applied) }}</span>
+          <span>+{{ schedule.penalty_applied | inr_currency }}</span>
         </div>
       {% endif %}
       <div class="flex justify-between">
         <span class="text-slate-600 dark:text-slate-400">Already Paid:</span>
-        <span class="font-bold text-emerald-600">-${{ "{:,.2f}".format(schedule.paid_amount) }}</span>
+        <span class="font-bold text-emerald-600">-{{ schedule.paid_amount | inr_currency }}</span>
       </div>
       <div class="pt-2 border-t border-amber-200 dark:border-amber-800 flex justify-between text-sm">
         <span class="font-extrabold text-slate-900 dark:text-slate-100">Net Due Now:</span>
-        <span class="font-black text-amber-600 dark:text-amber-400">${{ "{:,.2f}".format(schedule.outstanding_balance) }}</span>
+        <span class="font-black text-amber-600 dark:text-amber-400">{{ schedule.outstanding_balance | inr_currency }}</span>
       </div>
     </div>
 

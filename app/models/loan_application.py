@@ -30,6 +30,33 @@ class ApplicationStatus:
         DEFAULTED,
     ]
 
+    # Deterministic Lifecycle State Machine (Phase 8: Transition Integrity)
+    VALID_TRANSITIONS = {
+        DRAFT: {SUBMITTED},
+        SUBMITTED: {UNDER_REVIEW, PENDING_DOCS, REJECTED},
+        UNDER_REVIEW: {
+            PENDING_DOCS,
+            RECOMMENDED_APPROVAL,
+            RECOMMENDED_REJECTION,
+            APPROVED,
+            REJECTED,
+        },
+        PENDING_DOCS: {
+            UNDER_REVIEW,
+            SUBMITTED,
+            RECOMMENDED_APPROVAL,
+            RECOMMENDED_REJECTION,
+            REJECTED,
+        },
+        RECOMMENDED_APPROVAL: {APPROVED, REJECTED, UNDER_REVIEW},
+        RECOMMENDED_REJECTION: {APPROVED, REJECTED, UNDER_REVIEW},
+        APPROVED: {DISBURSED, REJECTED},
+        DISBURSED: {COMPLETED, DEFAULTED},
+        COMPLETED: set(),
+        REJECTED: set(),
+        DEFAULTED: set(),
+    }
+
 
 def generate_application_number():
     date_str = datetime.now(timezone.utc).strftime("%Y%m%d")
@@ -79,6 +106,26 @@ class LoanApplication(db.Model):
     audit_logs = db.relationship("DecisionAuditLog", back_populates="application", cascade="all, delete-orphan", lazy="dynamic", order_by="desc(DecisionAuditLog.created_at)")
     disbursement = db.relationship("Disbursement", back_populates="application", uselist=False, cascade="all, delete-orphan")
     repayment_schedules = db.relationship("RepaymentSchedule", back_populates="application", cascade="all, delete-orphan", lazy="dynamic", order_by="RepaymentSchedule.installment_number")
+
+    def can_transition_to(self, target_status: str) -> bool:
+        """Verifies whether the target status transition is valid according to the lifecycle state machine."""
+        allowed = ApplicationStatus.VALID_TRANSITIONS.get(self.status, set())
+        return target_status in allowed
+
+    def transition_to(self, target_status: str) -> bool:
+        """
+        Validates and executes a state transition. Raises ValueError if transition is invalid.
+        """
+        if target_status == self.status:
+            return True  # Idempotent no-op
+
+        if not self.can_transition_to(target_status):
+            raise ValueError(
+                f"Invalid lifecycle transition from '{self.status}' to '{target_status}' for Application #{self.application_number}."
+            )
+
+        self.status = target_status
+        return True
 
     def calculate_estimated_monthly_emi(self) -> float:
         """Calculates standard reducing balance Equated Monthly Installment (EMI) using Python Decimal arithmetic."""

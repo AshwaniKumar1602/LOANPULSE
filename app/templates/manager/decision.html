@@ -27,14 +27,14 @@
       <div class="text-lg font-black text-slate-900 dark:text-slate-100 mt-1">
         Credit Score: {{ application.customer.customer_profile.credit_score if application.customer.customer_profile and application.customer.customer_profile.credit_score else '650' }}
       </div>
-      <p class="text-slate-500">Income: ${{ "{:,.2f}".format(application.monthly_income_declared) }}/mo</p>
-      <p class="text-slate-500">Debt: ${{ "{:,.2f}".format(application.existing_monthly_debt) }}/mo</p>
+      <p class="text-slate-500">Income: {{ application.monthly_income_declared | inr_currency }}/mo</p>
+      <p class="text-slate-500">Debt: {{ application.existing_monthly_debt | inr_currency }}/mo</p>
     </div>
 
     <div class="p-5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm space-y-1 text-xs">
       <span class="text-slate-500 font-bold uppercase tracking-wider">Requested Financing</span>
       <div class="text-lg font-black text-slate-900 dark:text-slate-100 mt-1">
-        ${{ "{:,.2f}".format(application.requested_amount) }}
+        {{ application.requested_amount | inr_currency }}
       </div>
       <p class="text-slate-500">Tenure: {{ application.tenure_months }} Months</p>
       <p class="text-amber-600 dark:text-amber-400 font-bold">Base Rate: {{ application.interest_rate }}% APR</p>

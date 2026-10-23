@@ -37,7 +37,7 @@
       <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">
         {{ total_active_loans }}
       </div>
-      <p class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold mt-1">${{ "{:,.2f}".format(active_portfolio_volume) }} active volume</p>
+      <p class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold mt-1">{{ active_portfolio_volume | inr_currency }} active volume</p>
     </div>
 
     <!-- 2. Pending Approvals -->
@@ -63,7 +63,7 @@
         </div>
       </div>
       <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">
-        ${{ "{:,.2f}".format(total_disbursed) }}
+        {{ total_disbursed | inr_currency }}
       </div>
       <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">Cumulative released capital</p>
     </div>

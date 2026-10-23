@@ -20,7 +20,7 @@
   <div class="p-5 rounded-2xl bg-amber-500/10 border border-amber-300 dark:border-amber-700/60 space-y-2 text-xs">
     <div class="flex justify-between">
       <span class="text-slate-600 dark:text-slate-400">Approved Principal to Disburse:</span>
-      <span class="font-extrabold text-slate-900 dark:text-slate-100 text-base">${{ "{:,.2f}".format(application.approved_amount or application.requested_amount) }}</span>
+      <span class="font-extrabold text-slate-900 dark:text-slate-100 text-base">{{ (application.approved_amount or application.requested_amount) | inr_currency }}</span>
     </div>
     <div class="flex justify-between">
       <span class="text-slate-600 dark:text-slate-400">Agreed Interest Rate:</span>
@@ -32,7 +32,7 @@
     </div>
     <div class="flex justify-between">
       <span class="text-slate-600 dark:text-slate-400">Resulting Monthly EMI:</span>
-      <span class="font-bold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(application.calculate_estimated_monthly_emi()) }}/mo</span>
+      <span class="font-bold text-slate-900 dark:text-slate-100">{{ application.calculate_estimated_monthly_emi() | inr_currency }}/mo</span>
     </div>
   </div>
 

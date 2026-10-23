@@ -73,7 +73,7 @@
             <div class="flex justify-between items-center py-0.5 border-t border-amber-200/40 dark:border-slate-800">
               <span class="text-slate-600 dark:text-slate-400">Borrowing Range:</span>
               <span class="font-bold text-slate-900 dark:text-slate-100 font-mono">
-                ${{ "{:,.0f}".format(product.min_amount) }} &ndash; ${{ "{:,.0f}".format(product.max_amount) }}
+                {{ product.min_amount | inr_currency }} &ndash; {{ product.max_amount | inr_currency }}
               </span>
             </div>
             <div class="flex justify-between items-center py-0.5 border-t border-amber-200/40 dark:border-slate-800">
@@ -88,7 +88,7 @@
             <div class="flex justify-between items-center py-0.5 border-t border-amber-200/40 dark:border-slate-800">
               <span class="text-slate-600 dark:text-slate-400">Minimum Monthly Income:</span>
               <span class="font-bold text-emerald-600 dark:text-emerald-400">
-                ${{ "{:,.2f}".format(product.min_income_required or 2000.0) }}/mo
+                {{ (product.min_income_required or 2000.0) | inr_currency }}/mo
               </span>
             </div>
             <div class="flex justify-between items-center py-0.5 border-t border-amber-200/40 dark:border-slate-800">

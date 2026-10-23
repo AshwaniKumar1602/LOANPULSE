@@ -31,7 +31,7 @@
     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Disbursed Principal</span>
       <div class="text-2xl font-black text-slate-900 dark:text-slate-100 mt-1">
-        ${{ "{:,.2f}".format(application.approved_amount or application.requested_amount) }}
+        {{ (application.approved_amount or application.requested_amount) | inr_currency }}
       </div>
       <p class="text-[11px] text-slate-500 mt-1">{{ application.tenure_months }} monthly installments</p>
     </div>
@@ -39,7 +39,7 @@
     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Equated Monthly EMI</span>
       <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-1">
-        ${{ "{:,.2f}".format(application.calculate_estimated_monthly_emi()) }}
+        {{ application.calculate_estimated_monthly_emi() | inr_currency }}
       </div>
       <p class="text-[11px] text-slate-500 mt-1">Due on recurring monthly cycle</p>
     </div>
@@ -61,7 +61,7 @@
         <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Reducing-Balance Amortization Ledger</h2>
         <span class="sm:hidden text-[11px] text-amber-600 dark:text-amber-400 font-medium">Scroll horizontally to view full schedule &rarr;</span>
       </div>
-      <span class="text-xs text-slate-500 font-mono">Currency: USD ($)</span>
+      <span class="text-xs text-slate-500 font-mono">Currency: INR (₹)</span>
     </div>
 
     <div class="overflow-x-auto scrollbar-thin">
@@ -89,19 +89,19 @@
                 {{ item.due_date.strftime('%b %d, %Y') }}
               </td>
               <td class="px-4 sm:px-5 py-3.5 font-mono text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                ${{ "{:,.2f}".format(item.principal_amount) }}
+                {{ item.principal_amount | inr_currency }}
               </td>
               <td class="px-4 sm:px-5 py-3.5 font-mono text-amber-700 dark:text-amber-400 whitespace-nowrap">
-                ${{ "{:,.2f}".format(item.interest_amount) }}
+                {{ item.interest_amount | inr_currency }}
               </td>
               <td class="px-4 sm:px-5 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
-                ${{ "{:,.2f}".format(item.total_installment) }}
+                {{ item.total_installment | inr_currency }}
               </td>
               <td class="px-4 sm:px-5 py-3.5 font-mono text-slate-500 whitespace-nowrap">
-                ${{ "{:,.2f}".format(item.remaining_principal) }}
+                {{ item.remaining_principal | inr_currency }}
               </td>
               <td class="px-4 sm:px-5 py-3.5 font-mono font-semibold whitespace-nowrap {% if item.paid_amount > 0 %}text-emerald-600 dark:text-emerald-400{% else %}text-slate-400{% endif %}">
-                ${{ "{:,.2f}".format(item.paid_amount) }}
+                {{ item.paid_amount | inr_currency }}
               </td>
               <td class="px-4 sm:px-5 py-3.5 whitespace-nowrap">
                 {{ render_status_badge(item.status) }}
@@ -109,7 +109,7 @@
               <td class="px-4 sm:px-5 py-3.5 text-right whitespace-nowrap">
                 {% if item.status != 'PAID' %}
                   <a href="{{ url_for('customer.pay_installment', schedule_id=item.id) }}" class="inline-block px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
-                    Pay ${{ "{:,.2f}".format(item.outstanding_balance) }}
+                    Pay {{ item.outstanding_balance | inr_currency }}
                   </a>
                 {% else %}
                   <span class="text-xs text-emerald-600 font-bold">&check; Settled</span>
