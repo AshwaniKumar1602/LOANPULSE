@@ -144,7 +144,7 @@ def approvals():
 
 @manager_bp.route("/loans/<int:app_id>/decision", methods=["GET", "POST"])
 def decision(app_id: int):
-    application = LoanApplication.query.get_or_404(app_id)
+    application = db.get_or_404(LoanApplication, app_id)
 
     # State validation: Prevent modifying already disbursed/closed loans
     if application.status in [ApplicationStatus.DISBURSED, ApplicationStatus.COMPLETED]:
@@ -215,7 +215,7 @@ def decision(app_id: int):
 
 @manager_bp.route("/loans/<int:app_id>/disburse", methods=["GET", "POST"])
 def disburse(app_id: int):
-    application = LoanApplication.query.get_or_404(app_id)
+    application = db.get_or_404(LoanApplication, app_id)
 
     if application.status == ApplicationStatus.DISBURSED:
         flash(f"Application #{application.application_number} has already been disbursed.", "warning")
@@ -327,7 +327,7 @@ def create_product():
 
 @manager_bp.route("/products/<int:prod_id>/edit", methods=["GET", "POST"])
 def edit_product(prod_id: int):
-    product = LoanProduct.query.get_or_404(prod_id)
+    product = db.get_or_404(LoanProduct, prod_id)
     form = LoanProductForm(obj=product)
 
     if form.validate_on_submit():
@@ -356,7 +356,7 @@ def edit_product(prod_id: int):
 
 @manager_bp.route("/products/<int:prod_id>/toggle-status", methods=["POST"])
 def toggle_product_status(prod_id: int):
-    product = LoanProduct.query.get_or_404(prod_id)
+    product = db.get_or_404(LoanProduct, prod_id)
     product.is_active = not product.is_active
     db.session.commit()
     status_label = "activated" if product.is_active else "deactivated"

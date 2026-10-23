@@ -83,12 +83,14 @@ def mask_identifier(val: str, visible_suffix: int = 4) -> str:
 def sanitize_input(text: str) -> str:
     """
     XSS sanitization helper (Security Rule #2).
-    Strips malicious HTML tags while preserving clean plain text.
+    Strips malicious HTML tags and script/style contents while preserving clean plain text.
     """
     if not text:
         return ""
-    # Strip all HTML tags by default for form text inputs
-    cleaned = bleach.clean(text, tags=[], strip=True)
+    # Strip dangerous script and style tags including their inner contents
+    cleaned = re.sub(r"(?is)<(script|style).*?>.*?</\1>", "", text)
+    # Strip all remaining HTML tags and comments
+    cleaned = bleach.clean(cleaned, tags=[], strip=True, strip_comments=True)
     return cleaned.strip()
 
 

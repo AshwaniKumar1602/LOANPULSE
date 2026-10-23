@@ -78,7 +78,7 @@ def dashboard():
 
 
 @customer_bp.route("/loans/apply", methods=["GET", "POST"])
-@limiter.limit("10 per hour")
+@limiter.limit("5 per minute; 20 per hour")
 def apply():
     form = LoanApplicationForm()
     products = LoanProduct.query.filter_by(is_active=True).order_by(LoanProduct.name.asc()).all()
@@ -94,7 +94,7 @@ def apply():
         form.product_id.data = preselected_id
 
     if form.validate_on_submit():
-        product = LoanProduct.query.get_or_404(form.product_id.data)
+        product = db.get_or_404(LoanProduct, form.product_id.data)
         is_draft = bool(request.form.get("action") == "draft" or (form.save_draft.data and not form.submit.data))
 
         # Update customer profile financials
@@ -163,6 +163,7 @@ def apply():
 
 
 @customer_bp.route("/loans/<int:app_id>/edit", methods=["GET", "POST"])
+@limiter.limit("10 per minute; 30 per hour")
 def edit_draft(app_id: int):
     """Allows borrowers to edit draft applications before submission."""
     application = LoanApplication.query.filter_by(id=app_id, customer_id=current_user.id).first_or_404()
@@ -184,7 +185,7 @@ def edit_draft(app_id: int):
         form.purpose.data = application.purpose
 
     if form.validate_on_submit():
-        product = LoanProduct.query.get_or_404(form.product_id.data)
+        product = db.get_or_404(LoanProduct, form.product_id.data)
         is_draft = bool(request.form.get("action") == "draft" or (form.save_draft.data and not form.submit.data))
 
         application.product_id = product.id
@@ -242,6 +243,7 @@ def edit_draft(app_id: int):
 
 
 @customer_bp.route("/loans/<int:app_id>/resubmit", methods=["POST"])
+@limiter.limit("5 per minute; 20 per hour")
 def resubmit(app_id: int):
     """Allows borrowers to resubmit an application after uploading required documents."""
     application = LoanApplication.query.filter_by(id=app_id, customer_id=current_user.id).first_or_404()

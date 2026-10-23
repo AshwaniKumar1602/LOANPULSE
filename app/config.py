@@ -32,11 +32,16 @@ class Config:
     if raw_db_url.startswith("postgres://"):
         raw_db_url = raw_db_url.replace("postgres://", "postgresql://", 1)
     
+    # Enforce sslmode=require for Neon PostgreSQL
+    is_postgres = "postgresql" in raw_db_url
+    if is_postgres and "sslmode=" not in raw_db_url:
+        separator = "&" if "?" in raw_db_url else "?"
+        raw_db_url = f"{raw_db_url}{separator}sslmode=require"
+
     SQLALCHEMY_DATABASE_URI = raw_db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Connection pooling settings optimized for Render free-tier and Neon PostgreSQL
-    is_postgres = "postgresql" in SQLALCHEMY_DATABASE_URI
     if is_postgres:
         SQLALCHEMY_ENGINE_OPTIONS = {
             "pool_size": int(os.getenv("DB_POOL_SIZE", "5")),
@@ -44,7 +49,7 @@ class Config:
             "pool_recycle": int(os.getenv("DB_POOL_RECYCLE", "300")),
             "pool_timeout": int(os.getenv("DB_POOL_TIMEOUT", "30")),
             "pool_pre_ping": True,
-            "connect_args": {"sslmode": "require"} if "sslmode=" not in SQLALCHEMY_DATABASE_URI else {},
+            "connect_args": {"sslmode": "require"},
         }
     else:
         # Local SQLite fallback for testing/dev
@@ -80,6 +85,13 @@ class Config:
     DEBUG = False
     TESTING = False
 
+    # 8. Strict CORS & Domain Origins (Security Rule #11)
+    CORS_ALLOWED_ORIGINS = [
+        origin.strip()
+        for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
+
 
 class DevelopmentConfig(Config):
     DEBUG = False
@@ -89,6 +101,8 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
 
 
 class TestingConfig(Config):

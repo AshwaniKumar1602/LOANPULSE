@@ -84,7 +84,7 @@ def dashboard():
 
 @officer_bp.route("/loans/<int:app_id>/review")
 def review(app_id: int):
-    application = LoanApplication.query.get_or_404(app_id)
+    application = db.get_or_404(LoanApplication, app_id)
 
     # Automatically advance SUBMITTED to UNDER_REVIEW on first officer inspection
     if application.status == ApplicationStatus.SUBMITTED:
@@ -134,7 +134,7 @@ ALLOWED_OFFICER_ACTIONS = [
 
 @officer_bp.route("/documents/<int:doc_id>/verify", methods=["POST"])
 def verify_document(doc_id: int):
-    document = ApplicationDocument.query.get_or_404(doc_id)
+    document = db.get_or_404(ApplicationDocument, doc_id)
     
     # State validation: Prevent tampering with finalized loans
     if document.application.status in FINAL_STATUSES:
@@ -183,7 +183,7 @@ def verify_document(doc_id: int):
 
 @officer_bp.route("/loans/<int:app_id>/underwrite", methods=["POST"])
 def run_underwriting(app_id: int):
-    application = LoanApplication.query.get_or_404(app_id)
+    application = db.get_or_404(LoanApplication, app_id)
 
     # State validation
     if application.status in FINAL_STATUSES:
@@ -205,7 +205,7 @@ def run_underwriting(app_id: int):
 
 @officer_bp.route("/loans/<int:app_id>/recommend", methods=["POST"])
 def submit_recommendation(app_id: int):
-    application = LoanApplication.query.get_or_404(app_id)
+    application = db.get_or_404(LoanApplication, app_id)
 
     # State validation: Reject status transitions on finalized loans
     if application.status in FINAL_STATUSES:

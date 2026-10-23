@@ -55,7 +55,7 @@ def register():
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
-@limiter.limit("15 per minute")
+@limiter.limit("5 per minute; 20 per hour")
 def login():
     if current_user.is_authenticated:
         return _redirect_by_role(current_user)
