@@ -59,12 +59,12 @@ class ManagerDecisionForm(FlaskForm):
     )
     approved_amount = DecimalField(
         "Approved Principal ($)",
-        validators=[DataRequired(), NumberRange(min=100.0)],
+        validators=[Optional(), NumberRange(min=0.0)],
         render_kw={"step": "100"},
     )
     interest_rate = DecimalField(
         "Final Annual Interest Rate (%)",
-        validators=[DataRequired(), NumberRange(min=1.0, max=100.0)],
+        validators=[Optional(), NumberRange(min=0.0, max=100.0)],
         render_kw={"step": "0.10"},
     )
     remarks = TextAreaField(
@@ -73,6 +73,20 @@ class ManagerDecisionForm(FlaskForm):
         render_kw={"rows": 4, "placeholder": "State formal approval or rejection terms and conditions..."},
     )
     submit = SubmitField("Finalize Managerial Decision")
+
+    def validate(self, extra_validators=None):
+        initial_validation = super().validate(extra_validators=extra_validators)
+        if not initial_validation:
+            return False
+
+        if self.decision.data == "APPROVE":
+            if not self.approved_amount.data or float(self.approved_amount.data) < 100.0:
+                self.approved_amount.errors.append("Approved principal must be at least $100.00.")
+                return False
+            if not self.interest_rate.data or float(self.interest_rate.data) < 1.0:
+                self.interest_rate.errors.append("Final interest rate must be at least 1.0% APR.")
+                return False
+        return True
 
 
 class DisbursementForm(FlaskForm):

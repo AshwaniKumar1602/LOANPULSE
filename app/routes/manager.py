@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from sqlalchemy import func
 from flask import (
     Blueprint,
     render_template,
@@ -46,8 +47,10 @@ def manager_guard():
 def dashboard():
     refresh_overdue_schedules()
 
-    # Portfolio KPI Metrics
+    # Portfolio KPI Metrics generated via optimized SQL aggregation queries
+    # Render Free-Tier Optimization: zero in-memory entity loops
     total_applications = LoanApplication.query.count()
+
     approved_count = LoanApplication.query.filter(
         LoanApplication.status.in_([ApplicationStatus.APPROVED, ApplicationStatus.DISBURSED, ApplicationStatus.COMPLETED])
     ).count()
@@ -56,16 +59,34 @@ def dashboard():
     decided_count = approved_count + rejected_count
     approval_rate = round((approved_count / decided_count * 100.0), 1) if decided_count > 0 else 0.0
 
-    # Active portfolio
-    active_loans = LoanApplication.query.filter_by(status=ApplicationStatus.DISBURSED).all()
-    active_portfolio_volume = sum(float(app.approved_amount or app.requested_amount) for app in active_loans)
+    # 1. Total Active Loans count (Optimized SQL COUNT)
+    total_active_loans = LoanApplication.query.filter_by(status=ApplicationStatus.DISBURSED).count()
 
-    # Delinquency rate
-    total_schedules_due = RepaymentSchedule.query.count()
-    overdue_schedules = RepaymentSchedule.query.filter_by(status=RepaymentStatus.OVERDUE).count()
-    delinquency_rate = round((overdue_schedules / total_schedules_due * 100.0), 1) if total_schedules_due > 0 else 0.0
+    # 2. Total Disbursed capital released (Optimized SQL SUM)
+    total_disbursed_volume = float(
+        db.session.query(func.coalesce(func.sum(Disbursement.amount), 0.0))
+        .filter(Disbursement.status == DisbursementStatus.PROCESSED)
+        .scalar()
+    )
+    if total_disbursed_volume == 0.0:
+        total_disbursed_volume = float(
+            db.session.query(
+                func.coalesce(func.sum(func.coalesce(LoanApplication.approved_amount, LoanApplication.requested_amount)), 0.0)
+            )
+            .filter(LoanApplication.status.in_([ApplicationStatus.DISBURSED, ApplicationStatus.COMPLETED]))
+            .scalar()
+        )
 
-    # Pending approvals queue count
+    # Active portfolio outstanding volume (SQL SUM)
+    active_portfolio_volume = float(
+        db.session.query(
+            func.coalesce(func.sum(func.coalesce(LoanApplication.approved_amount, LoanApplication.requested_amount)), 0.0)
+        )
+        .filter(LoanApplication.status == ApplicationStatus.DISBURSED)
+        .scalar()
+    )
+
+    # 3. Pending Approvals queue count (Optimized SQL IN)
     pending_approvals_count = LoanApplication.query.filter(
         LoanApplication.status.in_([
             ApplicationStatus.RECOMMENDED_APPROVAL,
@@ -76,6 +97,11 @@ def dashboard():
 
     ready_for_disbursement_count = LoanApplication.query.filter_by(status=ApplicationStatus.APPROVED).count()
 
+    # Delinquency rate via SQL aggregates
+    total_schedules_due = RepaymentSchedule.query.count()
+    overdue_schedules = RepaymentSchedule.query.filter_by(status=RepaymentStatus.OVERDUE).count()
+    delinquency_rate = round((overdue_schedules / total_schedules_due * 100.0), 1) if total_schedules_due > 0 else 0.0
+
     # Recent Audit activity
     recent_logs = DecisionAuditLog.query.order_by(DecisionAuditLog.created_at.desc()).limit(8).all()
 
@@ -83,8 +109,11 @@ def dashboard():
         "manager/dashboard.html",
         total_applications=total_applications,
         approval_rate=approval_rate,
+        total_active_loans=total_active_loans,
+        active_loans_count=total_active_loans,
         active_portfolio_volume=active_portfolio_volume,
-        active_loans_count=len(active_loans),
+        total_disbursed=total_disbursed_volume,
+        total_disbursed_volume=total_disbursed_volume,
         delinquency_rate=delinquency_rate,
         pending_approvals_count=pending_approvals_count,
         ready_for_disbursement_count=ready_for_disbursement_count,
@@ -115,6 +144,12 @@ def approvals():
 @manager_bp.route("/loans/<int:app_id>/decision", methods=["GET", "POST"])
 def decision(app_id: int):
     application = LoanApplication.query.get_or_404(app_id)
+
+    # State validation: Prevent modifying already disbursed/closed loans
+    if application.status in [ApplicationStatus.DISBURSED, ApplicationStatus.COMPLETED]:
+        flash(f"Application #{application.application_number} is already {application.status} and cannot be modified.", "warning")
+        return redirect(url_for("manager.approvals"))
+
     form = ManagerDecisionForm()
 
     if request.method == "GET":
@@ -175,6 +210,10 @@ def decision(app_id: int):
 @manager_bp.route("/loans/<int:app_id>/disburse", methods=["GET", "POST"])
 def disburse(app_id: int):
     application = LoanApplication.query.get_or_404(app_id)
+
+    if application.status == ApplicationStatus.DISBURSED:
+        flash(f"Application #{application.application_number} has already been disbursed.", "warning")
+        return redirect(url_for("manager.approvals"))
 
     if application.status != ApplicationStatus.APPROVED:
         flash("Only approved loan applications can be disbursed.", "warning")

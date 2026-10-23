@@ -23,39 +23,77 @@
     </div>
   </div>
 
-  <!-- KPI Metric Cards Grid (1 col mobile, 2 sm, 4 lg) -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+  <!-- Primary High-Level KPI Metrics (Optimized SQL Aggregation Queries) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
     
+    <!-- 1. Total Active Loans -->
     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
-      <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Portfolio Volume</span>
-      <div class="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
-        ${{ "{:,.2f}".format(active_portfolio_volume) }}
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Active Loans</span>
+        <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs font-bold">
+          <i class="fa-solid fa-vault"></i>
+        </div>
       </div>
-      <p class="text-[11px] text-slate-500 mt-1">{{ active_loans_count }} active disbursed loans</p>
+      <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">
+        {{ total_active_loans }}
+      </div>
+      <p class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold mt-1">${{ "{:,.2f}".format(active_portfolio_volume) }} active volume</p>
     </div>
 
+    <!-- 2. Pending Approvals -->
     <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
-      <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Approval Rate</span>
-      <div class="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
-        {{ approval_rate }}%
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Approvals</span>
+        <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xs font-bold">
+          <i class="fa-solid fa-stamp"></i>
+        </div>
       </div>
-      <p class="text-[11px] text-slate-500 mt-1">{{ total_applications }} total lifetime applications</p>
-    </div>
-
-    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
-      <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Delinquency Rate</span>
-      <div class="text-2xl sm:text-3xl font-black {% if delinquency_rate > 5 %}text-rose-600{% else %}text-slate-900 dark:text-slate-100{% endif %} mt-1">
-        {{ delinquency_rate }}%
-      </div>
-      <p class="text-[11px] text-slate-500 mt-1">Past due EMI installment ratio</p>
-    </div>
-
-    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
-      <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Decision Queue</span>
       <div class="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
         {{ pending_approvals_count }}
       </div>
-      <p class="text-[11px] text-slate-500 mt-1">{{ ready_for_disbursement_count }} approved ready to disburse</p>
+      <p class="text-[11px] text-slate-500 mt-1">{{ ready_for_disbursement_count }} approved awaiting disbursement</p>
+    </div>
+
+    <!-- 3. Total Disbursed -->
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Disbursed</span>
+        <div class="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xs font-bold">
+          <i class="fa-solid fa-money-bill-transfer"></i>
+        </div>
+      </div>
+      <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">
+        ${{ "{:,.2f}".format(total_disbursed) }}
+      </div>
+      <p class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">Cumulative released capital</p>
+    </div>
+
+    <!-- 4. Approval Rate -->
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Approval Rate</span>
+        <div class="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center text-xs font-bold">
+          <i class="fa-solid fa-chart-pie"></i>
+        </div>
+      </div>
+      <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">
+        {{ approval_rate }}%
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1">{{ total_applications }} total applications</p>
+    </div>
+
+    <!-- 5. Delinquency Rate -->
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm sm:col-span-2 lg:col-span-1 xl:col-span-1">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Delinquency Rate</span>
+        <div class="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xs font-bold">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+      </div>
+      <div class="text-2xl sm:text-3xl font-black {% if delinquency_rate > 5 %}text-rose-600{% else %}text-slate-900 dark:text-slate-100{% endif %} mt-1">
+        {{ delinquency_rate }}%
+      </div>
+      <p class="text-[11px] text-slate-500 mt-1">Past due EMI ratio</p>
     </div>
 
   </div>

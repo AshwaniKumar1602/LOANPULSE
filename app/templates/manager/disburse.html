@@ -45,7 +45,7 @@
         <label for="{{ form.bank_name.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
           {{ form.bank_name.label.text }}
         </label>
-        {{ form.bank_name(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        {{ form.bank_name(class="w-full rounded-xl py-2.5 px-3.5 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-amber-500") }}
         {% for error in form.bank_name.errors %}
           <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
         {% endfor %}
@@ -56,7 +56,7 @@
           <label for="{{ form.bank_account.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
             {{ form.bank_account.label.text }}
           </label>
-          {{ form.bank_account(class="w-full rounded-xl py-2.5 px-3.5 text-sm font-mono border focus:ring-2 focus:ring-amber-500") }}
+          {{ form.bank_account(class="w-full rounded-xl py-2.5 px-3.5 text-sm font-mono border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-amber-500") }}
           <span class="text-[10px] text-slate-500 mt-1 block">Account will be masked upon submission.</span>
           {% for error in form.bank_account.errors %}
             <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
@@ -67,7 +67,7 @@
           <label for="{{ form.bank_routing.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
             {{ form.bank_routing.label.text }}
           </label>
-          {{ form.bank_routing(class="w-full rounded-xl py-2.5 px-3.5 text-sm font-mono border focus:ring-2 focus:ring-amber-500") }}
+          {{ form.bank_routing(class="w-full rounded-xl py-2.5 px-3.5 text-sm font-mono border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-amber-500") }}
           {% for error in form.bank_routing.errors %}
             <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
           {% endfor %}
@@ -78,14 +78,14 @@
         <label for="{{ form.disbursement_method.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
           {{ form.disbursement_method.label.text }}
         </label>
-        {{ form.disbursement_method(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        {{ form.disbursement_method(class="w-full rounded-xl py-2.5 px-3.5 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-amber-500") }}
       </div>
 
       <div>
         <label for="{{ form.notes.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
           {{ form.notes.label.text }}
         </label>
-        {{ form.notes(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        {{ form.notes(class="w-full rounded-xl py-2.5 px-3.5 text-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-amber-500") }}
       </div>
 
       <div class="pt-2">
