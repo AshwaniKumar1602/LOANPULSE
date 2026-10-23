@@ -10,16 +10,14 @@ load_dotenv()
 class Config:
     """Base Configuration with Security and Render Optimization."""
 
-    # 1. Secret Key Management & Entropy Verification (Security Rule #7)
+    # 1. Secret Key Management & Entropy Verification
     SECRET_KEY = os.getenv("SECRET_KEY")
     if not SECRET_KEY:
-        # In strict production environments, missing SECRET_KEY is a fatal security error
         if os.getenv("FLASK_ENV") == "production":
             raise RuntimeError(
                 "CRITICAL SECURITY CONFIGURATION ERROR: SECRET_KEY environment variable is missing! "
                 "Must be a high-entropy secret (min 32 bytes)."
             )
-        # Fallback for development if not provided
         SECRET_KEY = secrets.token_hex(32)
 
     if len(SECRET_KEY) < 32 and os.getenv("FLASK_ENV") == "production":
@@ -27,11 +25,11 @@ class Config:
             "CRITICAL SECURITY CONFIGURATION ERROR: SECRET_KEY must have at least 32 characters (256-bit entropy)."
         )
 
-    # 2. Database & Connection Pooling (Rule #2 & #5)
+    # 2. Database & Connection Pooling
     raw_db_url = os.getenv("DATABASE_URL", "sqlite:///loanpulse_dev.db")
     if raw_db_url.startswith("postgres://"):
         raw_db_url = raw_db_url.replace("postgres://", "postgresql://", 1)
-    
+
     # Enforce sslmode=require for Neon PostgreSQL
     is_postgres = "postgresql" in raw_db_url
     if is_postgres and "sslmode=" not in raw_db_url:
@@ -57,7 +55,7 @@ class Config:
             "pool_pre_ping": True,
         }
 
-    # 3. Session & Cookie Security (Security Rule #12)
+    # 3. Session & Cookie Security
     SESSION_COOKIE_NAME = os.getenv("SESSION_COOKIE_NAME", "loanpulse_session")
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SECURE = os.getenv("SESSION_COOKIE_SECURE", "False").lower() in ("true", "1", "t")
@@ -66,26 +64,26 @@ class Config:
         seconds=int(os.getenv("PERMANENT_SESSION_LIFETIME", "7200"))
     )
 
-    # 4. File Upload Configuration (Security Rule #4)
+    # 4. File Upload Configuration
     UPLOAD_FOLDER = os.path.abspath(os.getenv("UPLOAD_FOLDER", "uploads"))
     MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", str(5 * 1024 * 1024)))  # 5MB max
     ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg"}
 
-    # 5. Rate Limiting (Security Rule #6)
+    # 5. Rate Limiting
     RATELIMIT_DEFAULT = os.getenv("RATELIMIT_DEFAULT", "200/day;50/hour")
     RATELIMIT_STORAGE_URI = os.getenv("RATELIMIT_STORAGE_URI", "memory://")
     RATELIMIT_STRATEGY = "fixed-window"
     RATELIMIT_HEADERS_ENABLED = True
 
-    # 6. CSRF & Form Security (Security Rule #3)
+    # 6. CSRF & Form Security
     WTF_CSRF_ENABLED = True
     WTF_CSRF_TIME_LIMIT = 3600
 
-    # 7. Quality & Debug Settings (Security Rule #17)
+    # 7. Quality & Debug Settings
     DEBUG = False
     TESTING = False
 
-    # 8. Strict CORS & Domain Origins (Security Rule #11)
+    # 8. Strict CORS & Domain Origins
     CORS_ALLOWED_ORIGINS = [
         origin.strip()
         for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
@@ -94,7 +92,7 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    DEBUG = False
+    DEBUG = True
     SESSION_COOKIE_SECURE = False
 
 

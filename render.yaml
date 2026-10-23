@@ -2,7 +2,7 @@ services:
   - type: web
     name: loanpulse
     runtime: python
-    buildCommand: "./build.sh"
+    buildCommand: "chmod +x build.sh && ./build.sh"
     startCommand: "gunicorn -c gunicorn.conf.py wsgi:app"
     plan: free
     region: oregon
@@ -33,6 +33,12 @@ services:
         value: "300"
       - key: DB_POOL_TIMEOUT
         value: "30"
+      - key: UPLOAD_FOLDER
+        value: uploads
+      - key: MAX_CONTENT_LENGTH
+        value: "5242880"
+      - key: ALLOWED_EXTENSIONS
+        value: pdf,png,jpg,jpeg
       - key: SESSION_COOKIE_NAME
         value: loanpulse_session
       - key: SESSION_COOKIE_SECURE
@@ -43,5 +49,7 @@ services:
         value: "Lax"
       - key: PERMANENT_SESSION_LIFETIME
         value: "7200"
-      - key: MAX_CONTENT_LENGTH
-        value: "5242880"
+      - key: RATELIMIT_DEFAULT
+        value: 200/day;50/hour
+      - key: RATELIMIT_STORAGE_URI
+        value: memory://
