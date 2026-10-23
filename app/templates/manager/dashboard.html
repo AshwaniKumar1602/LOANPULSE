@@ -4,14 +4,14 @@
 {% block content %}
 <div class="space-y-8">
   
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800 gap-4">
     <div>
       <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Loan Manager Control Center</span>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Portfolio &amp; Risk Analytics</h1>
     </div>
 
     <!-- Export Actions -->
-    <div class="mt-4 sm:mt-0 flex flex-wrap gap-2">
+    <div class="flex flex-wrap gap-2">
       <a href="{{ url_for('manager.export_applications') }}" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 text-slate-800 dark:text-slate-200 transition-colors flex items-center space-x-1.5 shadow-sm">
         <i class="fa-solid fa-file-csv text-emerald-600"></i>
         <span>Stream Applications CSV</span>
@@ -23,10 +23,10 @@
     </div>
   </div>
 
-  <!-- KPI Metric Cards Grid -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  <!-- KPI Metric Cards Grid (1 col mobile, 2 sm, 4 lg) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
     
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Portfolio Volume</span>
       <div class="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
         ${{ "{:,.2f}".format(active_portfolio_volume) }}
@@ -34,7 +34,7 @@
       <p class="text-[11px] text-slate-500 mt-1">{{ active_loans_count }} active disbursed loans</p>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Approval Rate</span>
       <div class="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
         {{ approval_rate }}%
@@ -42,7 +42,7 @@
       <p class="text-[11px] text-slate-500 mt-1">{{ total_applications }} total lifetime applications</p>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Delinquency Rate</span>
       <div class="text-2xl sm:text-3xl font-black {% if delinquency_rate > 5 %}text-rose-600{% else %}text-slate-900 dark:text-slate-100{% endif %} mt-1">
         {{ delinquency_rate }}%
@@ -50,7 +50,7 @@
       <p class="text-[11px] text-slate-500 mt-1">Past due EMI installment ratio</p>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pending Decision Queue</span>
       <div class="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">
         {{ pending_approvals_count }}
@@ -61,8 +61,8 @@
   </div>
 
   <!-- Operational Action Banners -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div class="p-6 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-white dark:to-slate-800 border border-amber-300 dark:border-amber-900/60 shadow-sm flex flex-col justify-between">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+    <div class="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-white dark:to-slate-800 border border-amber-300 dark:border-amber-900/60 shadow-sm flex flex-col justify-between">
       <div>
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">Manager Approvals Queue</h3>
@@ -77,7 +77,7 @@
       </a>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
       <div>
         <div class="flex items-center justify-between mb-2">
           <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">Credit Product Configurations</h3>
@@ -95,13 +95,13 @@
 
   <!-- Recent Audit Logs Table -->
   <div class="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+    <div class="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
       <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Recent Decision Audit Trail</h2>
       <a href="{{ url_for('manager.audit_logs') }}" class="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline">View Full Ledger &rarr;</a>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-left text-xs">
+    <div class="overflow-x-auto scrollbar-thin">
+      <table class="min-w-[650px] w-full divide-y divide-slate-200 dark:divide-slate-700 text-left text-xs">
         <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider">
           <tr>
             <th class="px-5 py-3">Timestamp</th>
@@ -117,13 +117,13 @@
               <td class="px-5 py-3.5 font-mono text-slate-500 text-[11px] whitespace-nowrap">
                 {{ log.created_at.strftime('%Y-%m-%d %H:%M') }}
               </td>
-              <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-slate-100">
+              <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
                 {{ log.action.replace('_', ' ') }}
               </td>
-              <td class="px-5 py-3.5 font-mono text-amber-700 dark:text-amber-400 font-bold">
+              <td class="px-5 py-3.5 font-mono text-amber-700 dark:text-amber-400 font-bold whitespace-nowrap">
                 {{ log.application.application_number if log.application else '—' }}
               </td>
-              <td class="px-5 py-3.5 text-slate-700 dark:text-slate-300">
+              <td class="px-5 py-3.5 text-slate-700 dark:text-slate-300 whitespace-nowrap">
                 {{ log.actor.full_name if log.actor else 'System' }}
               </td>
               <td class="px-5 py-3.5 text-slate-600 dark:text-slate-400">

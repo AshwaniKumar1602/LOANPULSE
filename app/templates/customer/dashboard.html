@@ -6,36 +6,36 @@
 <div class="space-y-8">
   
   <!-- Header Banner -->
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800 gap-4">
     <div>
       <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Customer Portal</span>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Welcome, {{ current_user.first_name }}</h1>
     </div>
-    <div class="mt-4 sm:mt-0 flex space-x-3">
-      <a href="{{ url_for('customer.apply') }}" class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition-all flex items-center space-x-2">
+    <div class="flex space-x-3">
+      <a href="{{ url_for('customer.apply') }}" class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition-all flex items-center justify-center space-x-2">
         <i class="fa-solid fa-plus"></i>
         <span>New Loan Application</span>
       </a>
     </div>
   </div>
 
-  <!-- Metric KPI Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+  <!-- Metric KPI Cards (1 col mobile, 2 cols tablet, 3 cols desktop) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
     
     <!-- Active Borrowings -->
-    <div class="rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+    <div class="rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 p-5 sm:p-6 shadow-sm">
       <div class="flex items-center justify-between mb-3">
         <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Borrowing</span>
         <div class="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm font-bold">
           <i class="fa-solid fa-vault"></i>
         </div>
       </div>
-      <div class="text-3xl font-extrabold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(total_borrowed) }}</div>
+      <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(total_borrowed) }}</div>
       <p class="text-xs text-slate-500 mt-1">{{ active_loans|length }} active disbursed credit line(s)</p>
     </div>
 
     <!-- Next Upcoming EMI -->
-    <div class="rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+    <div class="rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 p-5 sm:p-6 shadow-sm">
       <div class="flex items-center justify-between mb-3">
         <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Upcoming EMI Installment</span>
         <div class="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm font-bold">
@@ -43,7 +43,7 @@
         </div>
       </div>
       {% if next_emi %}
-        <div class="text-3xl font-extrabold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(next_emi.total_installment) }}</div>
+        <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(next_emi.total_installment) }}</div>
         <div class="flex items-center justify-between mt-2">
           <span class="text-xs font-medium text-slate-500">Due: <strong class="text-amber-700 dark:text-amber-400">{{ next_emi.due_date.strftime('%b %d, %Y') }}</strong></span>
           <a href="{{ url_for('customer.pay_installment', schedule_id=next_emi.id) }}" class="px-2.5 py-1 rounded-md text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950">
@@ -57,14 +57,14 @@
     </div>
 
     <!-- Total Applications -->
-    <div class="rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
+    <div class="rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 p-5 sm:p-6 shadow-sm sm:col-span-2 lg:col-span-1">
       <div class="flex items-center justify-between mb-3">
         <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">My Applications</span>
         <div class="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-sm font-bold">
           <i class="fa-solid fa-folder-open"></i>
         </div>
       </div>
-      <div class="text-3xl font-extrabold text-slate-900 dark:text-slate-100">{{ applications|length }}</div>
+      <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">{{ applications|length }}</div>
       <p class="text-xs text-slate-500 mt-1">Lifecycle history & status records</p>
     </div>
 
@@ -101,48 +101,48 @@
     </div>
   {% endif %}
 
-  <!-- Applications Table -->
+  <!-- Applications Table Container -->
   <div class="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+    <div class="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
       <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Loan Applications History</h2>
       <a href="{{ url_for('customer.apply') }}" class="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline">+ New Application</a>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-left text-xs">
-        <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 uppercase font-bold tracking-wider">
+    <div class="overflow-x-auto scrollbar-thin">
+      <table class="min-w-[650px] w-full divide-y divide-slate-200 dark:divide-slate-700 text-left text-xs">
+        <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider">
           <tr>
-            <th class="px-6 py-3.5">Application #</th>
-            <th class="px-6 py-3.5">Product</th>
-            <th class="px-6 py-3.5">Requested Amount</th>
-            <th class="px-6 py-3.5">Tenure</th>
-            <th class="px-6 py-3.5">Est. EMI</th>
-            <th class="px-6 py-3.5">Status</th>
-            <th class="px-6 py-3.5 text-right">Actions</th>
+            <th class="px-5 py-3.5">Application #</th>
+            <th class="px-5 py-3.5">Product</th>
+            <th class="px-5 py-3.5">Requested Amount</th>
+            <th class="px-5 py-3.5">Tenure</th>
+            <th class="px-5 py-3.5">Est. EMI</th>
+            <th class="px-5 py-3.5">Status</th>
+            <th class="px-5 py-3.5 text-right">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
           {% for app in applications %}
             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors">
-              <td class="px-6 py-4 font-mono font-bold text-slate-900 dark:text-slate-100">
+              <td class="px-5 py-4 font-mono font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
                 {{ app.application_number }}
               </td>
-              <td class="px-6 py-4 font-medium text-slate-800 dark:text-slate-200">
+              <td class="px-5 py-4 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                 {{ app.product.name }}
               </td>
-              <td class="px-6 py-4 font-bold text-slate-900 dark:text-slate-100">
+              <td class="px-5 py-4 font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
                 ${{ "{:,.2f}".format(app.requested_amount) }}
               </td>
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
+              <td class="px-5 py-4 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                 {{ app.tenure_months }} mos
               </td>
-              <td class="px-6 py-4 text-amber-700 dark:text-amber-400 font-bold">
+              <td class="px-5 py-4 text-amber-700 dark:text-amber-400 font-bold whitespace-nowrap">
                 ${{ "{:,.2f}".format(app.calculate_estimated_monthly_emi()) }}/mo
               </td>
-              <td class="px-6 py-4">
+              <td class="px-5 py-4 whitespace-nowrap">
                 {{ render_status_badge(app.status) }}
               </td>
-              <td class="px-6 py-4 text-right space-x-2">
+              <td class="px-5 py-4 text-right space-x-2 whitespace-nowrap">
                 <a href="{{ url_for('customer.application_detail', app_id=app.id) }}" class="inline-block px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-700 hover:bg-amber-500 hover:text-slate-950 text-slate-800 dark:text-slate-200 transition-colors">
                   Details &amp; Docs
                 </a>
@@ -155,7 +155,7 @@
             </tr>
           {% else %}
             <tr>
-              <td colspan="7" class="px-6 py-12 text-center text-slate-500 text-sm">
+              <td colspan="7" class="px-5 py-12 text-center text-slate-500 text-sm">
                 You have not submitted any loan applications yet.
                 <div class="mt-3">
                   <a href="{{ url_for('customer.apply') }}" class="font-bold text-amber-600 dark:text-amber-400 hover:underline">Start your first application &rarr;</a>

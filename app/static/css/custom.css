@@ -1,23 +1,61 @@
-/* LoanPulse Custom Accessibility and Theme Styles */
+/* =============================================================================
+   LoanPulse Fintech Design System — CSS Tokens & Global Accessibility Styles
+   WCAG AA Contrast Standards & Render Free-Tier Lightweight Asset Optimization
+   ============================================================================= */
 
 :root {
-  --color-gold-primary: #D97706;
-  --color-gold-hover: #B45309;
-  --color-gold-accent: #F59E0B;
-  --color-gold-deep: #92400E;
-  --bg-light: #FAFAF9;
+  /* Warm Amber / Golden Palette Tokens */
+  --gold-50: #FFFBEB;
+  --gold-100: #FEF3C7;
+  --gold-200: #FDE68A;
+  --gold-300: #FCD34D;
+  --gold-400: #FBBF24;
+  --gold-500: #F59E0B;
+  --gold-600: #D97706; /* Primary Warm Amber Accent */
+  --gold-700: #B45309; /* Deep Warm Amber */
+  --gold-800: #92400E; /* Deep Warm Gold */
+  --gold-900: #78350F;
+  --gold-950: #451A03;
+
+  /* Surfaces & Backgrounds */
+  --bg-light: #FAFAF9;        /* Warm off-white */
+  --bg-light-subtle: #FFFBEB; /* Warm amber wash */
   --bg-light-card: #FFFFFF;
-  --bg-dark: #0F172A;
-  --bg-dark-card: #1E293B;
+  --border-light: #E2E8F0;
+
+  --bg-dark: #0F172A;         /* Rich slate-900 */
+  --bg-dark-card: #1E293B;    /* Rich slate-800 */
+  --bg-dark-elevated: #334155;/* Slate-700 */
+  --border-dark: #334155;
+
+  /* Typography Pairing */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-/* Light / Dark Mode transition */
+/* Base Body Styling */
+html, body {
+  min-height: 100%;
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 body {
-  transition: background-color 0.2s ease, color 0.2s ease;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-/* Form inputs high-contrast WCAG AA */
+/* Touch Targets: ensure interactive elements meet minimum 42px touch size */
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* Form inputs high-contrast WCAG AA standards */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -29,6 +67,7 @@ textarea {
   border-color: #CBD5E1;
   background-color: #FFFFFF;
   color: #0F172A;
+  font-size: 0.875rem;
 }
 
 .dark input[type="text"],
@@ -51,6 +90,16 @@ textarea:focus {
   box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.25);
 }
 
+/* Focus Visible for Keyboard Accessibility */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #D97706;
+  outline-offset: 2px;
+}
+
 /* Status Badges */
 .badge-gold {
   background-color: #FEF3C7;
@@ -58,20 +107,20 @@ textarea:focus {
   border: 1px solid #FCD34D;
 }
 .dark .badge-gold {
-  background-color: rgba(217, 119, 6, 0.2);
+  background-color: rgba(217, 119, 6, 0.22);
   color: #FDE68A;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  border: 1px solid rgba(245, 158, 11, 0.45);
 }
 
 .badge-green {
   background-color: #DCFCE7;
-  color: #166534;
+  color: #14532D;
   border: 1px solid #86EFAC;
 }
 .dark .badge-green {
-  background-color: rgba(22, 101, 52, 0.25);
+  background-color: rgba(20, 83, 45, 0.3);
   color: #86EFAC;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  border: 1px solid rgba(34, 197, 94, 0.4);
 }
 
 .badge-red {
@@ -80,18 +129,71 @@ textarea:focus {
   border: 1px solid #FCA5A5;
 }
 .dark .badge-red {
-  background-color: rgba(153, 27, 27, 0.25);
+  background-color: rgba(153, 27, 27, 0.3);
   color: #FCA5A5;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(239, 68, 68, 0.4);
 }
 
 .badge-blue {
   background-color: #E0F2FE;
-  color: #075985;
+  color: #0369A1;
   border: 1px solid #7DD3FC;
 }
 .dark .badge-blue {
-  background-color: rgba(7, 89, 133, 0.25);
+  background-color: rgba(3, 105, 161, 0.3);
   color: #7DD3FC;
-  border: 1px solid rgba(14, 165, 233, 0.3);
+  border: 1px solid rgba(14, 165, 233, 0.4);
+}
+
+/* Thin horizontal table scrollbars */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #CBD5E1;
+  border-radius: 9999px;
+}
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #475569;
+}
+
+/* Modal Animations */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-animate-in {
+  animation: modalFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Flash Toast Slide */
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.flash-alert {
+  animation: toastSlideIn 0.25s ease-out forwards;
+}
+
+/* Range input accent styling across browsers */
+input[type="range"] {
+  accent-color: #D97706;
 }

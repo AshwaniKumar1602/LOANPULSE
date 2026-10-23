@@ -13,17 +13,19 @@
       theme: {
         extend: {
           colors: {
+            // Yellowish-Goldenish Theme Palette Tokens
             gold: {
               50: '#FFFBEB',
               100: '#FEF3C7',
               200: '#FDE68A',
               300: '#FCD34D',
               400: '#FBBF24',
-              500: '#F59E0B',
-              600: '#D97706',
-              700: '#B45309',
-              800: '#92400E',
+              500: '#F59E0B', // Primary Warm Accent
+              600: '#D97706', // Primary Warm Amber
+              700: '#B45309', // Deep Warm Amber
+              800: '#92400E', // Deep Warm Gold
               900: '#78350F',
+              950: '#451A03',
             },
             amber: {
               50: '#FFFBEB',
@@ -36,12 +38,15 @@
               700: '#B45309',
               800: '#92400E',
               900: '#78350F',
+              950: '#451A03',
             },
             surface: {
-              light: '#FAFAF9',
-              cardLight: '#FFFFFF',
-              dark: '#0F172A',
-              cardDark: '#1E293B',
+              light: '#FAFAF9',       // Clean warm off-white
+              lightWarm: '#FFFBEB',   // Subtle amber wash
+              lightCard: '#FFFFFF',
+              dark: '#0F172A',        // Rich slate-900
+              darkCard: '#1E293B',    // Rich charcoal/slate-800
+              darkElevated: '#334155' // Slate-700
             }
           }
         }
@@ -56,7 +61,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
   {% block extra_head %}{% endblock %}
 </head>
-<body class="h-full flex flex-col bg-[#FAFAF9] dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950">
+<body class="h-full flex flex-col bg-[#FAFAF9] dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 antialiased selection:bg-amber-500 selection:text-slate-950 transition-colors">
   
   <!-- Navigation Bar -->
   {% include 'components/navbar.html' %}
@@ -64,8 +69,8 @@
   <!-- Flash Alerts -->
   {% include 'components/alerts.html' %}
 
-  <!-- Main Content Container -->
-  <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Main Content Container with Responsive Padding -->
+  <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
     {% block content %}{% endblock %}
   </main>
 

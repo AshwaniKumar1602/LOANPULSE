@@ -5,44 +5,44 @@
 {% block content %}
 <div class="space-y-8">
   
-  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800 gap-4">
     <div>
       <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Credit Officer Workspace</span>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Application Underwriting Queue</h1>
     </div>
-    <div class="mt-4 sm:mt-0 flex items-center space-x-2 text-xs text-slate-500">
+    <div class="flex items-center space-x-2 text-xs text-slate-500">
       <i class="fa-solid fa-user-shield text-amber-500"></i>
       <span>Staff Session • 2FA Protected</span>
     </div>
   </div>
 
-  <!-- Metric Badges -->
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+  <!-- Metric Badges (1 col mobile, 3 cols desktop) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">New Submissions</span>
-      <div class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ submitted_count }}</div>
+      <div class="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ submitted_count }}</div>
       <p class="text-xs text-slate-500 mt-1">Awaiting initial officer inspection</p>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">In Active Review</span>
-      <div class="text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">{{ under_review_count }}</div>
+      <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">{{ under_review_count }}</div>
       <p class="text-xs text-slate-500 mt-1">Underwriter assessment in progress</p>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+    <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm sm:col-span-2 lg:col-span-1">
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Document Requests</span>
-      <div class="text-3xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ pending_docs_count }}</div>
+      <div class="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ pending_docs_count }}</div>
       <p class="text-xs text-slate-500 mt-1">Awaiting borrower re-uploads</p>
     </div>
   </div>
 
   <!-- Filter & Search Controls -->
-  <div class="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+  <div class="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-5 shadow-sm">
     <form method="GET" action="{{ url_for('officer.dashboard') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
       
       <!-- Search Input -->
-      <div class="sm:col-span-5">
+      <div class="sm:col-span-12 lg:col-span-5">
         <label for="q" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
           Search Borrower or App #
         </label>
@@ -53,7 +53,7 @@
       </div>
 
       <!-- Status Filter -->
-      <div class="sm:col-span-3">
+      <div class="sm:col-span-6 lg:col-span-3">
         <label for="status" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
           Filter Status
         </label>
@@ -70,7 +70,7 @@
       </div>
 
       <!-- Product Filter -->
-      <div class="sm:col-span-3">
+      <div class="sm:col-span-6 lg:col-span-3">
         <label for="product_id" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
           Loan Product
         </label>
@@ -83,8 +83,8 @@
       </div>
 
       <!-- Action Button -->
-      <div class="sm:col-span-1">
-        <button type="submit" class="w-full py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
+      <div class="sm:col-span-12 lg:col-span-1">
+        <button type="submit" class="w-full py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
           Filter
         </button>
       </div>
@@ -93,12 +93,12 @@
 
   <!-- Queue Table -->
   <div class="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+    <div class="px-5 sm:px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
       <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Assigned Applications ({{ applications|length }})</h2>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-left text-xs">
+    <div class="overflow-x-auto scrollbar-thin">
+      <table class="min-w-[750px] w-full divide-y divide-slate-200 dark:divide-slate-700 text-left text-xs">
         <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider">
           <tr>
             <th class="px-5 py-3">App Number</th>
@@ -114,20 +114,20 @@
         <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
           {% for app in applications %}
             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-              <td class="px-5 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">
+              <td class="px-5 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
                 {{ app.application_number }}
               </td>
-              <td class="px-5 py-3.5">
+              <td class="px-5 py-3.5 whitespace-nowrap">
                 <div class="font-bold text-slate-900 dark:text-slate-100">{{ app.customer.full_name }}</div>
                 <div class="text-[11px] text-slate-500">{{ app.customer.email }}</div>
               </td>
-              <td class="px-5 py-3.5 font-medium text-slate-800 dark:text-slate-200">
+              <td class="px-5 py-3.5 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
                 {{ app.product.name }}
               </td>
-              <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-slate-100">
+              <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
                 ${{ "{:,.2f}".format(app.requested_amount) }}
               </td>
-              <td class="px-5 py-3.5">
+              <td class="px-5 py-3.5 whitespace-nowrap">
                 {% if app.risk_score %}
                   <span class="font-bold px-2 py-0.5 rounded text-[11px] {% if app.risk_score < 40 %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300{% elif app.risk_score < 70 %}bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300{% else %}bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300{% endif %}">
                     {{ app.risk_score }}
@@ -136,13 +136,13 @@
                   <span class="text-slate-400">—</span>
                 {% endif %}
               </td>
-              <td class="px-5 py-3.5">
+              <td class="px-5 py-3.5 whitespace-nowrap">
                 {{ render_status_badge(app.status) }}
               </td>
-              <td class="px-5 py-3.5 text-slate-500 font-mono text-[11px]">
+              <td class="px-5 py-3.5 text-slate-500 font-mono text-[11px] whitespace-nowrap">
                 {{ app.submitted_at.strftime('%Y-%m-%d') if app.submitted_at else 'Draft' }}
               </td>
-              <td class="px-5 py-3.5 text-right">
+              <td class="px-5 py-3.5 text-right whitespace-nowrap">
                 <a href="{{ url_for('officer.review', app_id=app.id) }}" class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
                   <span>Review &amp; Verify</span>
                   <i class="fa-solid fa-arrow-right text-[10px]"></i>
