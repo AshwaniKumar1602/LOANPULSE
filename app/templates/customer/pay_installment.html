@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Authorize EMI Payment — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-6">
+  <div class="mb-6">
+    <a href="{{ url_for('customer.repayment_schedule', app_id=schedule.application_id) }}" class="text-xs font-semibold text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 mb-2 inline-block">
+      &larr; Back to Schedule
+    </a>
+    <h1 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">Pay Installment #{{ schedule.installment_number }}</h1>
+    <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">App #{{ schedule.application.application_number }} — Due {{ schedule.due_date.strftime('%B %d, %Y') }}</p>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800/90 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
+    
+    <div class="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 mb-6 space-y-2 text-xs">
+      <div class="flex justify-between">
+        <span class="text-slate-600 dark:text-slate-400">Total Installment (EMI):</span>
+        <span class="font-bold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(schedule.total_installment) }}</span>
+      </div>
+      {% if schedule.penalty_applied > 0 %}
+        <div class="flex justify-between text-rose-600 font-bold">
+          <span>Late Penalty Fee:</span>
+          <span>+${{ "{:,.2f}".format(schedule.penalty_applied) }}</span>
+        </div>
+      {% endif %}
+      <div class="flex justify-between">
+        <span class="text-slate-600 dark:text-slate-400">Already Paid:</span>
+        <span class="font-bold text-emerald-600">-${{ "{:,.2f}".format(schedule.paid_amount) }}</span>
+      </div>
+      <div class="pt-2 border-t border-amber-200 dark:border-amber-800 flex justify-between text-sm">
+        <span class="font-extrabold text-slate-900 dark:text-slate-100">Net Due Now:</span>
+        <span class="font-black text-amber-600 dark:text-amber-400">${{ "{:,.2f}".format(schedule.outstanding_balance) }}</span>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('customer.pay_installment', schedule_id=schedule.id) }}" class="space-y-5">
+      {{ form.hidden_tag() }}
+
+      <div>
+        <label for="{{ form.amount.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+          {{ form.amount.label.text }}
+        </label>
+        {{ form.amount(class="w-full font-mono text-lg font-bold rounded-xl py-2.5 px-3.5 border focus:ring-2 focus:ring-amber-500") }}
+        {% for error in form.amount.errors %}
+          <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div>
+        <label for="{{ form.payment_method.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+          {{ form.payment_method.label.text }}
+        </label>
+        {{ form.payment_method(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        {% for error in form.payment_method.errors %}
+          <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div>
+        {{ form.submit(class="w-full py-3.5 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 cursor-pointer transition-all") }}
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

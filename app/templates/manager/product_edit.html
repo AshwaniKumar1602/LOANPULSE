@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6 my-6">
+  
+  <div>
+    <a href="{{ url_for('manager.products') }}" class="text-xs font-semibold text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 mb-2 inline-block">
+      &larr; Back to Products
+    </a>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">{{ title }}</h1>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800/90 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
+    <form method="POST" class="space-y-4">
+      {{ form.hidden_tag() }}
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label for="{{ form.code.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+            {{ form.code.label.text }}
+          </label>
+          {{ form.code(class="w-full rounded-xl py-2 px-3 text-sm font-mono border focus:ring-2 focus:ring-amber-500") }}
+          {% for error in form.code.errors %}
+            <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div>
+          <label for="{{ form.name.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+            {{ form.name.label.text }}
+          </label>
+          {{ form.name(class="w-full rounded-xl py-2 px-3 text-sm border focus:ring-2 focus:ring-amber-500") }}
+          {% for error in form.name.errors %}
+            <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div>
+        <label for="{{ form.description.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+          {{ form.description.label.text }}
+        </label>
+        {{ form.description(class="w-full rounded-xl py-2 px-3 text-sm border focus:ring-2 focus:ring-amber-500", rows=2) }}
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label for="{{ form.min_amount.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+            {{ form.min_amount.label.text }}
+          </label>
+          {{ form.min_amount(class="w-full rounded-xl py-2 px-3 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        </div>
+
+        <div>
+          <label for="{{ form.max_amount.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+            {{ form.max_amount.label.text }}
+          </label>
+          {{ form.max_amount(class="w-full rounded-xl py-2 px-3 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label for="{{ form.min_tenure_months.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+            {{ form.min_tenure_months.label.text }}
+          </label>
+          {{ form.min_tenure_months(class="w-full rounded-xl py-2 px-3 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        </div>
+
+        <div>
+          <label for="{{ form.max_tenure_months.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+            {{ form.max_tenure_months.label.text }}
+          </label>
+          {{ form.max_tenure_months(class="w-full rounded-xl py-2 px-3 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div>
+          <label for="{{ form.base_interest_rate.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+            {{ form.base_interest_rate.label.text }}
+          </label>
+          {{ form.base_interest_rate(class="w-full rounded-xl py-2 px-3 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        </div>
+
+        <div>
+          <label for="{{ form.min_credit_score.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+            {{ form.min_credit_score.label.text }}
+          </label>
+          {{ form.min_credit_score(class="w-full rounded-xl py-2 px-3 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        </div>
+
+        <div>
+          <label for="{{ form.max_dti_ratio.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+            {{ form.max_dti_ratio.label.text }}
+          </label>
+          {{ form.max_dti_ratio(class="w-full rounded-xl py-2 px-3 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        </div>
+      </div>
+
+      <div class="flex items-center pt-2">
+        {{ form.is_active(class="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500") }}
+        <label for="{{ form.is_active.id }}" class="ml-2 block text-xs font-bold text-slate-700 dark:text-slate-300">
+          {{ form.is_active.label.text }}
+        </label>
+      </div>
+
+      <div class="pt-4">
+        {{ form.submit(class="w-full py-3 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 cursor-pointer transition-all") }}
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

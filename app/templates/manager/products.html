@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Loan Products Catalog — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-6xl mx-auto">
+  
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800">
+    <div>
+      <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Product Management</span>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Credit Products &amp; Guidelines</h1>
+    </div>
+    <div class="mt-4 sm:mt-0">
+      <a href="{{ url_for('manager.create_product') }}" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition-all flex items-center space-x-2">
+        <i class="fa-solid fa-plus"></i>
+        <span>Create New Loan Product</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-left text-xs">
+        <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider">
+          <tr>
+            <th class="px-5 py-3.5">Code</th>
+            <th class="px-5 py-3.5">Product Name</th>
+            <th class="px-5 py-3.5">Amount Range</th>
+            <th class="px-5 py-3.5">Tenure Range</th>
+            <th class="px-5 py-3.5">Base APR</th>
+            <th class="px-5 py-3.5">Min Score</th>
+            <th class="px-5 py-3.5">Max DTI</th>
+            <th class="px-5 py-3.5">Status</th>
+            <th class="px-5 py-3.5 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          {% for prod in products %}
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+              <td class="px-5 py-4 font-mono font-bold text-slate-900 dark:text-slate-100">
+                {{ prod.code }}
+              </td>
+              <td class="px-5 py-4 font-semibold text-slate-800 dark:text-slate-200">
+                {{ prod.name }}
+              </td>
+              <td class="px-5 py-4 font-mono">
+                ${{ "{:,.0f}".format(prod.min_amount) }} - ${{ "{:,.0f}".format(prod.max_amount) }}
+              </td>
+              <td class="px-5 py-4 text-slate-600 dark:text-slate-400">
+                {{ prod.min_tenure_months }} - {{ prod.max_tenure_months }} mos
+              </td>
+              <td class="px-5 py-4 font-bold text-amber-600 dark:text-amber-400">
+                {{ prod.base_interest_rate }}%
+              </td>
+              <td class="px-5 py-4">
+                {{ prod.min_credit_score }}
+              </td>
+              <td class="px-5 py-4">
+                {{ prod.max_dti_ratio }}%
+              </td>
+              <td class="px-5 py-4">
+                {% if prod.is_active %}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold badge-green">
+                    Active
+                  </span>
+                {% else %}
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold badge-red">
+                    Inactive
+                  </span>
+                {% endif %}
+              </td>
+              <td class="px-5 py-4 text-right">
+                <a href="{{ url_for('manager.edit_product', prod_id=prod.id) }}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 dark:bg-slate-700 hover:bg-amber-500 hover:text-slate-950 text-slate-800 dark:text-slate-200 transition-colors">
+                  Edit
+                </a>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="9" class="px-5 py-10 text-center text-slate-500">No loan products defined. Run CLI seed or create one.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+<footer class="mt-auto bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400">
+  <div class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      
+      <!-- Brand & Security Tagline -->
+      <div class="md:col-span-2 space-y-3">
+        <div class="flex items-center space-x-2">
+          <div class="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold text-sm">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <span class="text-lg font-bold text-slate-900 dark:text-slate-100">Loan<span class="text-amber-600 dark:text-amber-500">Pulse</span></span>
+        </div>
+        <p class="text-xs text-slate-600 dark:text-slate-400 max-w-sm leading-relaxed">
+          Production-ready lending lifecycle infrastructure. Engineered with strict row-level authorization, 2FA security, automated underwriting evaluation, and Neon PostgreSQL connection pooling.
+        </p>
+        <div class="flex items-center space-x-4 text-xs font-medium text-amber-700 dark:text-amber-400">
+          <span><i class="fa-solid fa-lock mr-1"></i>256-Bit SSL</span>
+          <span><i class="fa-solid fa-shield-halved mr-1"></i>TOTP 2FA Protected</span>
+          <span><i class="fa-solid fa-database mr-1"></i>Neon DB Optimized</span>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div>
+        <h4 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider mb-3">Credit Solutions</h4>
+        <ul class="space-y-2 text-xs">
+          <li><a href="{{ url_for('main.calculator') }}" class="hover:text-amber-600 dark:hover:text-amber-400">EMI Loan Calculator</a></li>
+          <li><a href="{{ url_for('main.index') }}#products" class="hover:text-amber-600 dark:hover:text-amber-400">Active Loan Products</a></li>
+          <li><a href="{{ url_for('auth.register') }}" class="hover:text-amber-600 dark:hover:text-amber-400">Apply for Credit</a></li>
+        </ul>
+      </div>
+
+      <!-- Compliance -->
+      <div>
+        <h4 class="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider mb-3">Governance</h4>
+        <ul class="space-y-2 text-xs">
+          <li><span class="text-emerald-600 dark:text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i>Zero Test Seed Policy</span></li>
+          <li><span>WCAG AA Contrast Compliant</span></li>
+          <li><span>Render Free-Tier Tuned</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-8 pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500">
+      <p>&copy; {{ current_year }} LoanPulse LoanMaster. All rights reserved.</p>
+      <p class="mt-2 sm:mt-0 font-mono text-[11px]">System Status: Operational • SSL Mode: Require</p>
+    </div>
+  </div>
+</footer>

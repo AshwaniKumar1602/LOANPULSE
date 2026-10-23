@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% from 'components/status_badge.html' import render_status_badge %}
+{% block title %}Underwriting & Review Queue — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+  
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800">
+    <div>
+      <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Credit Officer Workspace</span>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Application Underwriting Queue</h1>
+    </div>
+    <div class="mt-4 sm:mt-0 flex items-center space-x-2 text-xs text-slate-500">
+      <i class="fa-solid fa-user-shield text-amber-500"></i>
+      <span>Staff Session • 2FA Protected</span>
+    </div>
+  </div>
+
+  <!-- Metric Badges -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">New Submissions</span>
+      <div class="text-3xl font-black text-amber-600 dark:text-amber-400 mt-1">{{ submitted_count }}</div>
+      <p class="text-xs text-slate-500 mt-1">Awaiting initial officer inspection</p>
+    </div>
+
+    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">In Active Review</span>
+      <div class="text-3xl font-black text-slate-900 dark:text-slate-100 mt-1">{{ under_review_count }}</div>
+      <p class="text-xs text-slate-500 mt-1">Underwriter assessment in progress</p>
+    </div>
+
+    <div class="p-6 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 shadow-sm">
+      <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Document Requests</span>
+      <div class="text-3xl font-black text-rose-600 dark:text-rose-400 mt-1">{{ pending_docs_count }}</div>
+      <p class="text-xs text-slate-500 mt-1">Awaiting borrower re-uploads</p>
+    </div>
+  </div>
+
+  <!-- Filter & Search Controls -->
+  <div class="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+    <form method="GET" action="{{ url_for('officer.dashboard') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+      
+      <!-- Search Input -->
+      <div class="sm:col-span-5">
+        <label for="q" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+          Search Borrower or App #
+        </label>
+        <div class="relative">
+          <input type="text" name="q" id="q" value="{{ search_query }}" placeholder="Search by name, email, or LP-..." class="w-full rounded-xl py-2 pl-9 pr-3 text-xs border focus:ring-2 focus:ring-amber-500">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+        </div>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="sm:col-span-3">
+        <label for="status" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+          Filter Status
+        </label>
+        <select name="status" id="status" class="w-full rounded-xl py-2 px-3 text-xs border focus:ring-2 focus:ring-amber-500">
+          <option value="">All Active Queue</option>
+          <option value="SUBMITTED" {% if current_status == 'SUBMITTED' %}selected{% endif %}>Submitted</option>
+          <option value="UNDER_REVIEW" {% if current_status == 'UNDER_REVIEW' %}selected{% endif %}>Under Review</option>
+          <option value="PENDING_DOCS" {% if current_status == 'PENDING_DOCS' %}selected{% endif %}>Pending Docs</option>
+          <option value="RECOMMENDED_APPROVAL" {% if current_status == 'RECOMMENDED_APPROVAL' %}selected{% endif %}>Recommended Approval</option>
+          <option value="RECOMMENDED_REJECTION" {% if current_status == 'RECOMMENDED_REJECTION' %}selected{% endif %}>Recommended Rejection</option>
+          <option value="APPROVED" {% if current_status == 'APPROVED' %}selected{% endif %}>Approved</option>
+          <option value="DISBURSED" {% if current_status == 'DISBURSED' %}selected{% endif %}>Disbursed</option>
+        </select>
+      </div>
+
+      <!-- Product Filter -->
+      <div class="sm:col-span-3">
+        <label for="product_id" class="block text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-1">
+          Loan Product
+        </label>
+        <select name="product_id" id="product_id" class="w-full rounded-xl py-2 px-3 text-xs border focus:ring-2 focus:ring-amber-500">
+          <option value="">All Products</option>
+          {% for p in products %}
+            <option value="{{ p.id }}" {% if current_product == p.id %}selected{% endif %}>{{ p.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Action Button -->
+      <div class="sm:col-span-1">
+        <button type="submit" class="w-full py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
+          Filter
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Queue Table -->
+  <div class="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+      <h2 class="text-base font-bold text-slate-900 dark:text-slate-100">Assigned Applications ({{ applications|length }})</h2>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-left text-xs">
+        <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider">
+          <tr>
+            <th class="px-5 py-3">App Number</th>
+            <th class="px-5 py-3">Applicant Name</th>
+            <th class="px-5 py-3">Product</th>
+            <th class="px-5 py-3">Amount</th>
+            <th class="px-5 py-3">Risk Score</th>
+            <th class="px-5 py-3">Status</th>
+            <th class="px-5 py-3">Submitted</th>
+            <th class="px-5 py-3 text-right">Review</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          {% for app in applications %}
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+              <td class="px-5 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">
+                {{ app.application_number }}
+              </td>
+              <td class="px-5 py-3.5">
+                <div class="font-bold text-slate-900 dark:text-slate-100">{{ app.customer.full_name }}</div>
+                <div class="text-[11px] text-slate-500">{{ app.customer.email }}</div>
+              </td>
+              <td class="px-5 py-3.5 font-medium text-slate-800 dark:text-slate-200">
+                {{ app.product.name }}
+              </td>
+              <td class="px-5 py-3.5 font-bold text-slate-900 dark:text-slate-100">
+                ${{ "{:,.2f}".format(app.requested_amount) }}
+              </td>
+              <td class="px-5 py-3.5">
+                {% if app.risk_score %}
+                  <span class="font-bold px-2 py-0.5 rounded text-[11px] {% if app.risk_score < 40 %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300{% elif app.risk_score < 70 %}bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300{% else %}bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300{% endif %}">
+                    {{ app.risk_score }}
+                  </span>
+                {% else %}
+                  <span class="text-slate-400">—</span>
+                {% endif %}
+              </td>
+              <td class="px-5 py-3.5">
+                {{ render_status_badge(app.status) }}
+              </td>
+              <td class="px-5 py-3.5 text-slate-500 font-mono text-[11px]">
+                {{ app.submitted_at.strftime('%Y-%m-%d') if app.submitted_at else 'Draft' }}
+              </td>
+              <td class="px-5 py-3.5 text-right">
+                <a href="{{ url_for('officer.review', app_id=app.id) }}" class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
+                  <span>Review &amp; Verify</span>
+                  <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="8" class="px-5 py-12 text-center text-slate-500">
+                No loan applications match your current queue filters.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

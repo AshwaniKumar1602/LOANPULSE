@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Apply for Loan — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+  <div class="mb-8">
+    <a href="{{ url_for('customer.dashboard') }}" class="text-xs font-semibold text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 mb-2 inline-block">
+      &larr; Back to Dashboard
+    </a>
+    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100">Credit Origination Application</h1>
+    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+      Complete your borrower credentials and financial details to trigger instant automated rule underwriting.
+    </p>
+  </div>
+
+  <div class="bg-white dark:bg-slate-800/90 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-10 shadow-sm">
+    <form method="POST" action="{{ url_for('customer.apply') }}" class="space-y-6">
+      {{ form.hidden_tag() }}
+
+      <!-- Section 1: Loan Configuration -->
+      <div class="pb-6 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="text-sm font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-4 flex items-center">
+          <span class="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-600 flex items-center justify-center text-xs mr-2 font-black">1</span>
+          Loan Parameters
+        </h3>
+
+        <div class="space-y-4">
+          <div>
+            <label for="{{ form.product_id.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              {{ form.product_id.label.text }}
+            </label>
+            {{ form.product_id(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+            {% for error in form.product_id.errors %}
+              <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="{{ form.requested_amount.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                {{ form.requested_amount.label.text }}
+              </label>
+              {{ form.requested_amount(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+              {% for error in form.requested_amount.errors %}
+                <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+              {% endfor %}
+            </div>
+
+            <div>
+              <label for="{{ form.tenure_months.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                {{ form.tenure_months.label.text }}
+              </label>
+              {{ form.tenure_months(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+              {% for error in form.tenure_months.errors %}
+                <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Borrower Financials -->
+      <div class="pb-6 border-b border-slate-200 dark:border-slate-700">
+        <h3 class="text-sm font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-4 flex items-center">
+          <span class="w-6 h-6 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-600 flex items-center justify-center text-xs mr-2 font-black">2</span>
+          Financial &amp; Identity Verification
+        </h3>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="{{ form.employment_type.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                {{ form.employment_type.label.text }}
+              </label>
+              {{ form.employment_type(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+              {% for error in form.employment_type.errors %}
+                <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+              {% endfor %}
+            </div>
+
+            <div>
+              <label for="{{ form.tax_id.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                {{ form.tax_id.label.text }}
+              </label>
+              {{ form.tax_id(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+              <span class="text-[10px] text-slate-500 mt-1 block">Stored securely with institutional masking.</span>
+              {% for error in form.tax_id.errors %}
+                <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="{{ form.monthly_income.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                {{ form.monthly_income.label.text }}
+              </label>
+              {{ form.monthly_income(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+              {% for error in form.monthly_income.errors %}
+                <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+              {% endfor %}
+            </div>
+
+            <div>
+              <label for="{{ form.existing_monthly_debt.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                {{ form.existing_monthly_debt.label.text }}
+              </label>
+              {{ form.existing_monthly_debt(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+              {% for error in form.existing_monthly_debt.errors %}
+                <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div>
+            <label for="{{ form.purpose.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              {{ form.purpose.label.text }}
+            </label>
+            {{ form.purpose(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+            {% for error in form.purpose.errors %}
+              <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        {{ form.submit(class="w-full py-3.5 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 cursor-pointer transition-all") }}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+/* LoanPulse Custom Accessibility and Theme Styles */
+
+:root {
+  --color-gold-primary: #D97706;
+  --color-gold-hover: #B45309;
+  --color-gold-accent: #F59E0B;
+  --color-gold-deep: #92400E;
+  --bg-light: #FAFAF9;
+  --bg-light-card: #FFFFFF;
+  --bg-dark: #0F172A;
+  --bg-dark-card: #1E293B;
+}
+
+/* Light / Dark Mode transition */
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Form inputs high-contrast WCAG AA */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="file"],
+select,
+textarea {
+  border-width: 1px;
+  border-color: #CBD5E1;
+  background-color: #FFFFFF;
+  color: #0F172A;
+}
+
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="file"],
+.dark select,
+.dark textarea {
+  border-color: #475569;
+  background-color: #1E293B;
+  color: #F8FAFC;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #D97706;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.25);
+}
+
+/* Status Badges */
+.badge-gold {
+  background-color: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FCD34D;
+}
+.dark .badge-gold {
+  background-color: rgba(217, 119, 6, 0.2);
+  color: #FDE68A;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.badge-green {
+  background-color: #DCFCE7;
+  color: #166534;
+  border: 1px solid #86EFAC;
+}
+.dark .badge-green {
+  background-color: rgba(22, 101, 52, 0.25);
+  color: #86EFAC;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.badge-red {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #FCA5A5;
+}
+.dark .badge-red {
+  background-color: rgba(153, 27, 27, 0.25);
+  color: #FCA5A5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.badge-blue {
+  background-color: #E0F2FE;
+  color: #075985;
+  border: 1px solid #7DD3FC;
+}
+.dark .badge-blue {
+  background-color: rgba(7, 89, 133, 0.25);
+  color: #7DD3FC;
+  border: 1px solid rgba(14, 165, 233, 0.3);
+}

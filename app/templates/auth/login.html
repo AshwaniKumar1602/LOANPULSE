@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Sign In — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-6">
+  <div class="bg-white dark:bg-slate-800/90 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
+    
+    <div class="text-center mb-8">
+      <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-300 dark:border-amber-700 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h1 class="text-2xl font-extrabold text-slate-900 dark:text-slate-100">Welcome Back</h1>
+      <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">Sign in to your LoanPulse management portal</p>
+    </div>
+
+    <form method="POST" action="{{ url_for('auth.login', next=request.args.get('next')) }}" class="space-y-5">
+      {{ form.hidden_tag() }}
+
+      <div>
+        <label for="{{ form.email.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+          {{ form.email.label.text }}
+        </label>
+        {{ form.email(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500 transition-colors") }}
+        {% for error in form.email.errors %}
+          <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-1.5">
+          <label for="{{ form.password.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            {{ form.password.label.text }}
+          </label>
+        </div>
+        {{ form.password(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500 transition-colors") }}
+        {% for error in form.password.errors %}
+          <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="flex items-center">
+        {{ form.remember_me(class="h-4 w-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500") }}
+        <label for="{{ form.remember_me.id }}" class="ml-2 block text-xs text-slate-700 dark:text-slate-300">
+          {{ form.remember_me.label.text }}
+        </label>
+      </div>
+
+      <div>
+        {{ form.submit(class="w-full py-3 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 cursor-pointer transition-all") }}
+      </div>
+
+      <div class="text-center pt-4 border-t border-slate-100 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-400">
+        Don't have an account yet?
+        <a href="{{ url_for('auth.register') }}" class="font-bold text-amber-600 dark:text-amber-400 hover:underline ml-1">Create Free Account</a>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

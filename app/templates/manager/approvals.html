@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% from 'components/status_badge.html' import render_status_badge %}
+{% block title %}Approvals &amp; Disbursement Queue — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-6xl mx-auto">
+  
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800">
+    <div>
+      <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Manager Worklist</span>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Credit Decisions &amp; Disbursements</h1>
+    </div>
+  </div>
+
+  <!-- Filter Buttons -->
+  <div class="flex flex-wrap gap-2 text-xs font-bold">
+    <a href="{{ url_for('manager.approvals') }}" class="px-3.5 py-1.5 rounded-lg border {% if not current_status %}bg-amber-500 text-slate-950 border-amber-500{% else %}bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700{% endif %}">
+      All Actionable
+    </a>
+    <a href="{{ url_for('manager.approvals', status='RECOMMENDED_APPROVAL') }}" class="px-3.5 py-1.5 rounded-lg border {% if current_status == 'RECOMMENDED_APPROVAL' %}bg-amber-500 text-slate-950 border-amber-500{% else %}bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700{% endif %}">
+      Recommended Approval
+    </a>
+    <a href="{{ url_for('manager.approvals', status='APPROVED') }}" class="px-3.5 py-1.5 rounded-lg border {% if current_status == 'APPROVED' %}bg-amber-500 text-slate-950 border-amber-500{% else %}bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700{% endif %}">
+      Approved (Ready to Disburse)
+    </a>
+    <a href="{{ url_for('manager.approvals', status='RECOMMENDED_REJECTION') }}" class="px-3.5 py-1.5 rounded-lg border {% if current_status == 'RECOMMENDED_REJECTION' %}bg-amber-500 text-slate-950 border-amber-500{% else %}bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700{% endif %}">
+      Recommended Rejection
+    </a>
+  </div>
+
+  <!-- Worklist Table -->
+  <div class="bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-left text-xs">
+        <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 uppercase font-bold tracking-wider">
+          <tr>
+            <th class="px-5 py-3.5">App Number</th>
+            <th class="px-5 py-3.5">Applicant</th>
+            <th class="px-5 py-3.5">Product</th>
+            <th class="px-5 py-3.5">Requested Amt</th>
+            <th class="px-5 py-3.5">Risk Rating</th>
+            <th class="px-5 py-3.5">Status</th>
+            <th class="px-5 py-3.5 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          {% for app in applications %}
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+              <td class="px-5 py-4 font-mono font-bold text-slate-900 dark:text-slate-100">
+                {{ app.application_number }}
+              </td>
+              <td class="px-5 py-4">
+                <div class="font-bold text-slate-900 dark:text-slate-100">{{ app.customer.full_name }}</div>
+                <div class="text-[11px] text-slate-500">{{ app.customer.email }}</div>
+              </td>
+              <td class="px-5 py-4 font-medium text-slate-800 dark:text-slate-200">
+                {{ app.product.name }}
+              </td>
+              <td class="px-5 py-4 font-bold text-slate-900 dark:text-slate-100">
+                ${{ "{:,.2f}".format(app.requested_amount) }}
+              </td>
+              <td class="px-5 py-4">
+                {% if app.risk_score %}
+                  <span class="font-bold px-2 py-0.5 rounded text-[11px] {% if app.risk_score < 40 %}bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300{% elif app.risk_score < 70 %}bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300{% else %}bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300{% endif %}">
+                    {{ app.risk_score }}
+                  </span>
+                {% else %}
+                  <span class="text-slate-400">—</span>
+                {% endif %}
+              </td>
+              <td class="px-5 py-4">
+                {{ render_status_badge(app.status) }}
+              </td>
+              <td class="px-5 py-4 text-right space-x-2">
+                {% if app.status == 'APPROVED' %}
+                  <a href="{{ url_for('manager.disburse', app_id=app.id) }}" class="inline-block px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-colors">
+                    <i class="fa-solid fa-coins mr-1"></i>Disburse Funds
+                  </a>
+                {% else %}
+                  <a href="{{ url_for('manager.decision', app_id=app.id) }}" class="inline-block px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 hover:bg-amber-500 hover:text-slate-950 dark:bg-slate-700 dark:hover:bg-amber-500 dark:hover:text-slate-950 text-white transition-colors">
+                    <i class="fa-solid fa-stamp mr-1"></i>Review &amp; Decide
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="7" class="px-5 py-12 text-center text-slate-500">
+                No loan applications currently awaiting manager decision.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

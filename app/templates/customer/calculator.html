@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% block title %}EMI Loan Calculator — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+  <div class="mb-8">
+    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-950 border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-300 text-xs font-semibold mb-3">
+      <i class="fa-solid fa-calculator text-amber-500"></i>
+      <span>Financial Planning & Estimation</span>
+    </div>
+    <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100">Equated Monthly Installment (EMI) Calculator</h1>
+    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">
+      Plan your loan borrowing and visualize exact monthly commitments based on our reducing balance amortization model.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Controls Column -->
+    <div class="lg:col-span-7 bg-white dark:bg-slate-800/90 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-sm space-y-6">
+      
+      <!-- Product Preset Selector -->
+      {% if products %}
+      <div>
+        <label for="calc-product-select" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+          Select Loan Product Preset
+        </label>
+        <select id="calc-product-select" class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500">
+          <option value="" disabled selected>-- Choose a loan product to prefill parameters --</option>
+          {% for p in products %}
+            <option value="{{ p.id }}" data-rate="{{ p.base_interest_rate }}" data-min="{{ p.min_amount }}" data-max="{{ p.max_amount }}" data-min-tenure="{{ p.min_tenure_months }}" data-max-tenure="{{ p.max_tenure_months }}">
+              {{ p.name }} ({{ p.base_interest_rate }}% APR)
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% endif %}
+
+      <!-- Loan Amount Slider & Input -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label for="calc-amount" class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Loan Principal Amount ($)</label>
+          <span class="text-sm font-extrabold text-amber-600 dark:text-amber-500" id="calc-principal-val">$25,000.00</span>
+        </div>
+        <input id="calc-amount" type="range" min="1000" max="250000" step="500" value="25000" class="w-full accent-amber-500 cursor-pointer">
+        <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+          <span>$1,000</span>
+          <span>$100,000</span>
+          <span>$250,000+</span>
+        </div>
+      </div>
+
+      <!-- Annual Interest Rate Slider -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label for="calc-rate" class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Annual Interest Rate (% APR)</label>
+          <span class="text-sm font-extrabold text-amber-600 dark:text-amber-500" id="calc-rate-val">9.5%</span>
+        </div>
+        <input id="calc-rate" type="range" min="3.0" max="25.0" step="0.25" value="9.5" class="w-full accent-amber-500 cursor-pointer">
+        <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+          <span>3.0%</span>
+          <span>14.0%</span>
+          <span>25.0%</span>
+        </div>
+      </div>
+
+      <!-- Tenure Slider -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label for="calc-tenure" class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Repayment Tenure (Months)</label>
+          <span class="text-sm font-extrabold text-amber-600 dark:text-amber-500" id="calc-tenure-val">36 Mos</span>
+        </div>
+        <input id="calc-tenure" type="range" min="6" max="120" step="6" value="36" class="w-full accent-amber-500 cursor-pointer">
+        <div class="flex justify-between text-[11px] text-slate-400 mt-1">
+          <span>6 Months</span>
+          <span>60 Months (5 Yrs)</span>
+          <span>120 Months (10 Yrs)</span>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs text-slate-500">
+        <span><i class="fa-solid fa-circle-info mr-1 text-amber-500"></i>Calculations use standard reducing balance interest methodology.</span>
+      </div>
+
+    </div>
+
+    <!-- Output Card Column -->
+    <div class="lg:col-span-5 flex flex-col justify-between bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-white dark:to-slate-800 rounded-2xl border border-amber-300/80 dark:border-amber-900/60 p-6 sm:p-8 shadow-sm">
+      
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Estimated Commitment</span>
+        
+        <div class="mt-4 p-6 rounded-2xl bg-amber-500 text-slate-950 text-center shadow-lg shadow-amber-500/20">
+          <div class="text-xs font-bold uppercase tracking-wider opacity-90">Equated Monthly Installment</div>
+          <div class="text-3xl sm:text-4xl font-black tracking-tight mt-1" id="calc-emi-val">$800.86</div>
+          <div class="text-[11px] font-semibold opacity-80 mt-1">Per Month For Selected Term</div>
+        </div>
+
+        <!-- Breakdown Details -->
+        <div class="mt-6 space-y-3 text-xs">
+          <div class="flex justify-between py-2 border-b border-amber-200/60 dark:border-slate-700">
+            <span class="text-slate-600 dark:text-slate-400 font-medium">Total Interest Payable:</span>
+            <span class="font-extrabold text-slate-900 dark:text-slate-100" id="calc-interest-val">$3,830.84</span>
+          </div>
+          <div class="flex justify-between py-2 border-b border-amber-200/60 dark:border-slate-700">
+            <span class="text-slate-600 dark:text-slate-400 font-medium">Total Outlay (Principal + Interest):</span>
+            <span class="font-extrabold text-slate-900 dark:text-slate-100" id="calc-payment-val">$28,830.84</span>
+          </div>
+        </div>
+
+        <!-- Visual Distribution Bar -->
+        <div class="mt-6">
+          <div class="flex justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
+            <span>Principal vs Interest Split</span>
+          </div>
+          <div class="h-3 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden flex">
+            <div id="calc-bar-principal" class="bg-amber-600 h-full" style="width: 86%;"></div>
+            <div id="calc-bar-interest" class="bg-amber-400 h-full" style="width: 14%;"></div>
+          </div>
+          <div class="flex items-center space-x-4 mt-2 text-[10px] font-semibold text-slate-500">
+            <div class="flex items-center space-x-1">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
+              <span>Principal</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+              <span>Interest Component</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-8 pt-4">
+        <a href="{{ url_for('customer.apply') if current_user.is_authenticated else url_for('auth.register') }}" class="w-full py-3.5 rounded-xl text-center text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 transition-all flex items-center justify-center space-x-2">
+          <span>Apply With These Terms</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/calculator.js') }}"></script>
+<script>
+  // Sync slider indicator labels
+  const rateSlider = document.getElementById("calc-rate");
+  const tenureSlider = document.getElementById("calc-tenure");
+  const rateVal = document.getElementById("calc-rate-val");
+  const tenureVal = document.getElementById("calc-tenure-val");
+
+  if (rateSlider && rateVal) {
+    rateSlider.addEventListener("input", () => {
+      rateVal.textContent = rateSlider.value + "%";
+    });
+  }
+  if (tenureSlider && tenureVal) {
+    tenureSlider.addEventListener("input", () => {
+      tenureVal.textContent = tenureSlider.value + " Mos";
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% from 'components/status_badge.html' import render_status_badge %}
+{% block title %}Authorize Disbursement #{{ application.application_number }} — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-8 my-6">
+  
+  <div class="pb-4 border-b border-slate-200 dark:border-slate-800">
+    <a href="{{ url_for('manager.approvals') }}" class="text-xs font-semibold text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 mb-2 inline-block">
+      &larr; Back to Approvals Worklist
+    </a>
+    <div class="flex items-center space-x-3">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Authorize Capital Disbursement</h1>
+      {{ render_status_badge(application.status) }}
+    </div>
+    <p class="text-xs text-slate-500 mt-1">App #{{ application.application_number }} &bull; Applicant: {{ application.customer.full_name }}</p>
+  </div>
+
+  <!-- Loan Terms Summary Box -->
+  <div class="p-5 rounded-2xl bg-amber-500/10 border border-amber-300 dark:border-amber-700/60 space-y-2 text-xs">
+    <div class="flex justify-between">
+      <span class="text-slate-600 dark:text-slate-400">Approved Principal to Disburse:</span>
+      <span class="font-extrabold text-slate-900 dark:text-slate-100 text-base">${{ "{:,.2f}".format(application.approved_amount or application.requested_amount) }}</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="text-slate-600 dark:text-slate-400">Agreed Interest Rate:</span>
+      <span class="font-bold text-amber-600 dark:text-amber-400">{{ application.interest_rate }}% APR</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="text-slate-600 dark:text-slate-400">Amortization Tenure:</span>
+      <span class="font-bold text-slate-800 dark:text-slate-200">{{ application.tenure_months }} Months</span>
+    </div>
+    <div class="flex justify-between">
+      <span class="text-slate-600 dark:text-slate-400">Resulting Monthly EMI:</span>
+      <span class="font-bold text-slate-900 dark:text-slate-100">${{ "{:,.2f}".format(application.calculate_estimated_monthly_emi()) }}/mo</span>
+    </div>
+  </div>
+
+  <!-- Disbursement Form -->
+  <div class="bg-white dark:bg-slate-800/90 rounded-3xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
+    <form method="POST" action="{{ url_for('manager.disburse', app_id=application.id) }}" class="space-y-5">
+      {{ form.hidden_tag() }}
+
+      <div>
+        <label for="{{ form.bank_name.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+          {{ form.bank_name.label.text }}
+        </label>
+        {{ form.bank_name(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+        {% for error in form.bank_name.errors %}
+          <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label for="{{ form.bank_account.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            {{ form.bank_account.label.text }}
+          </label>
+          {{ form.bank_account(class="w-full rounded-xl py-2.5 px-3.5 text-sm font-mono border focus:ring-2 focus:ring-amber-500") }}
+          <span class="text-[10px] text-slate-500 mt-1 block">Account will be masked upon submission.</span>
+          {% for error in form.bank_account.errors %}
+            <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div>
+          <label for="{{ form.bank_routing.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+            {{ form.bank_routing.label.text }}
+          </label>
+          {{ form.bank_routing(class="w-full rounded-xl py-2.5 px-3.5 text-sm font-mono border focus:ring-2 focus:ring-amber-500") }}
+          {% for error in form.bank_routing.errors %}
+            <p class="mt-1 text-xs text-rose-600 font-medium">{{ error }}</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div>
+        <label for="{{ form.disbursement_method.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+          {{ form.disbursement_method.label.text }}
+        </label>
+        {{ form.disbursement_method(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+      </div>
+
+      <div>
+        <label for="{{ form.notes.id }}" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+          {{ form.notes.label.text }}
+        </label>
+        {{ form.notes(class="w-full rounded-xl py-2.5 px-3.5 text-sm border focus:ring-2 focus:ring-amber-500") }}
+      </div>
+
+      <div class="pt-2">
+        {{ form.submit(class="w-full py-3.5 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md shadow-amber-500/20 cursor-pointer transition-all") }}
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

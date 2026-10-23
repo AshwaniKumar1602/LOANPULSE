@@ -1,0 +1,29 @@
+{# Reusable Status Badge Component with WCAG AA Contrast #}
+{% macro render_status_badge(status) %}
+  {% if status in ['APPROVED', 'PAID', 'VERIFIED', 'COMPLETED', 'ELIGIBLE'] %}
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold badge-green">
+      <span class="w-1.5 h-1.5 mr-1.5 bg-emerald-600 rounded-full"></span>
+      {{ status }}
+    </span>
+  {% elif status in ['REJECTED', 'FAILED', 'OVERDUE', 'INELIGIBLE', 'DEFAULTED'] %}
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold badge-red">
+      <span class="w-1.5 h-1.5 mr-1.5 bg-rose-600 rounded-full"></span>
+      {{ status }}
+    </span>
+  {% elif status in ['DISBURSED'] %}
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold badge-blue">
+      <span class="w-1.5 h-1.5 mr-1.5 bg-sky-600 rounded-full"></span>
+      {{ status }}
+    </span>
+  {% elif status in ['UNDER_REVIEW', 'RECOMMENDED_APPROVAL', 'RECOMMENDED_REJECTION', 'PENDING_DOCS', 'REFER'] %}
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold badge-gold">
+      <span class="w-1.5 h-1.5 mr-1.5 bg-amber-600 rounded-full"></span>
+      {{ status.replace('_', ' ') }}
+    </span>
+  {% else %}
+    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+      <span class="w-1.5 h-1.5 mr-1.5 bg-slate-500 rounded-full"></span>
+      {{ status }}
+    </span>
+  {% endif %}
+{% endmacro %}
