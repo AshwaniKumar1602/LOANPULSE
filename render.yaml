@@ -1,0 +1,47 @@
+services:
+  - type: web
+    name: loanpulse
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn -c gunicorn.conf.py wsgi:app"
+    plan: free
+    region: oregon
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: FLASK_APP
+        value: wsgi.py
+      - key: FLASK_ENV
+        value: production
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: GUNICORN_WORKERS
+        value: "2"
+      - key: GUNICORN_THREADS
+        value: "2"
+      - key: DB_POOL_SIZE
+        value: "5"
+      - key: DB_MAX_OVERFLOW
+        value: "2"
+      - key: DB_POOL_RECYCLE
+        value: "300"
+      - key: DB_POOL_TIMEOUT
+        value: "30"
+      - key: SESSION_COOKIE_NAME
+        value: loanpulse_session
+      - key: SESSION_COOKIE_SECURE
+        value: "True"
+      - key: SESSION_COOKIE_HTTPONLY
+        value: "True"
+      - key: SESSION_COOKIE_SAMESITE
+        value: "Lax"
+      - key: PERMANENT_SESSION_LIFETIME
+        value: "7200"
+      - key: MAX_CONTENT_LENGTH
+        value: "5242880"

@@ -59,9 +59,14 @@ def create_app(config_name=None):
     app.register_blueprint(api_bp)
 
     # Register CLI commands
-    from cli.commands import seed_production_command, create_staff_command
+    from cli.commands import (
+        seed_production_command,
+        create_initial_products_command,
+        create_staff_command,
+    )
 
     app.cli.add_command(seed_production_command)
+    app.cli.add_command(create_initial_products_command)
     app.cli.add_command(create_staff_command)
 
     # Security Headers Middleware (Security Rules #1, #2, #11, #12, #17)

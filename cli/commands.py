@@ -6,14 +6,7 @@ from app.models.loan_product import LoanProduct
 from app.models.customer import CustomerProfile
 
 
-@click.command("seed-production")
-@with_appcontext
-def seed_production_command():
-    """
-    Seeds essential configuration seeds ONLY:
-    - Default active loan product types (Personal, Home, Auto, SME Business).
-    Zero test users, zero fake applications, zero mock repayment records (Rule #1).
-    """
+def seed_production_logic():
     click.echo("Seeding production configuration...")
 
     default_products = [
@@ -119,6 +112,28 @@ def seed_production_command():
 
     db.session.commit()
     click.echo(f"Successfully seeded {added} default loan products. System clean of test users.")
+
+
+@click.command("seed-production")
+@with_appcontext
+def seed_production_command():
+    """
+    Seeds essential configuration seeds ONLY:
+    - Default active loan product types (Personal, Home, Auto, SME Business).
+    Zero test users, zero fake applications, zero mock repayment records (Rule #1).
+    """
+    seed_production_logic()
+
+
+@click.command("create-initial-products")
+@with_appcontext
+def create_initial_products_command():
+    """
+    Seeds essential institutional loan products for fresh production environments:
+    - Provisions Personal, Vehicle, Medical, and Education loan products.
+    Zero test users, zero fake applications, zero mock repayment records (Rule #1).
+    """
+    seed_production_logic()
 
 
 @click.command("create-staff")
