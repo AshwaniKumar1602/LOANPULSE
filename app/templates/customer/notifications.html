@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block title %}Notifications Center — LoanPulse{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-4xl mx-auto">
+  
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800 gap-4">
+    <div>
+      <a href="{{ url_for('customer.dashboard') }}" class="text-xs font-semibold text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 mb-2 inline-block">
+        &larr; Back to Dashboard
+      </a>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">Notification Feed</h1>
+      <p class="text-xs text-slate-500 mt-1">Real-time alerts, credit underwriting updates, and repayment schedules</p>
+    </div>
+
+    <!-- Mark All Read Action -->
+    <div class="flex items-center space-x-2">
+      <form method="POST" action="{{ url_for('customer.read_all_notifications') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition-colors cursor-pointer">
+          <i class="fa-solid fa-check-double mr-1.5"></i>Mark All Read
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification List -->
+  <div class="space-y-3">
+    {% for notif in notifications %}
+      <div class="p-4 sm:p-5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 {% if not notif.is_read %}bg-amber-50/70 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800/80 shadow-xs{% else %}bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700/80{% endif %}">
+        
+        <div class="flex items-start space-x-3.5">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5 {% if not notif.is_read %}bg-amber-500 text-slate-950{% else %}bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400{% endif %}">
+            {% if notif.type == 'APPLICATION_STATUS' %}
+              <i class="fa-solid fa-file-lines"></i>
+            {% elif notif.type == 'DOCUMENT_REQUEST' %}
+              <i class="fa-solid fa-upload"></i>
+            {% elif notif.type == 'DISBURSEMENT' %}
+              <i class="fa-solid fa-coins"></i>
+            {% elif notif.type == 'EMI_DUE' %}
+              <i class="fa-solid fa-receipt"></i>
+            {% else %}
+              <i class="fa-solid fa-bell"></i>
+            {% endif %}
+          </div>
+
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-extrabold text-slate-900 dark:text-slate-100">{{ notif.title }}</span>
+              {% if not notif.is_read %}
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              {% endif %}
+            </div>
+            <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{{ notif.message }}</p>
+            <div class="text-[10px] text-slate-400 font-mono">{{ notif.created_at.strftime('%B %d, %Y at %H:%M UTC') }}</div>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 self-end sm:self-center pl-12 sm:pl-0">
+          {% if notif.link %}
+            <a href="{{ notif.link }}" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 hover:bg-amber-500 hover:text-slate-950 text-slate-700 dark:text-slate-200 transition-colors">
+              View &rarr;
+            </a>
+          {% endif %}
+
+          {% if not notif.is_read %}
+            <form method="POST" action="{{ url_for('customer.mark_notification_read', notif_id=notif.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-500 hover:text-amber-600 dark:hover:text-amber-400 transition-colors" title="Mark Read">
+                <i class="fa-solid fa-check"></i>
+              </button>
+            </form>
+          {% endif %}
+        </div>
+
+      </div>
+    {% else %}
+      <div class="p-12 text-center rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 text-slate-500">
+        <i class="fa-regular fa-bell text-3xl mb-3 text-slate-400 block"></i>
+        <p class="text-sm">You have no notifications on record.</p>
+      </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}

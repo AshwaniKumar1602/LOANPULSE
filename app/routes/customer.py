@@ -9,6 +9,7 @@ from flask import (
     request,
     abort,
     send_file,
+    Response,
 )
 from flask_login import login_required, current_user
 from app.extensions import db, limiter
@@ -27,6 +28,7 @@ from app.services.document_service import save_uploaded_document, get_document_f
 from app.services.audit_service import log_audit
 from app.services.notification_service import create_notification
 from app.services.repayment_engine import record_repayment, refresh_overdue_schedules
+from app.services.export_service import stream_repayments_csv
 
 customer_bp = Blueprint("customer", __name__, url_prefix="/customer")
 
@@ -43,7 +45,7 @@ def customer_guard():
 def dashboard():
     refresh_overdue_schedules()
 
-    # Scope all queries to current_user.id (Security Rule #5 & #14: IDOR Prevention)
+    # Scope all queries to current_user.id (Security Rule #5 & #14: Strict IDOR Prevention)
     applications = LoanApplication.query.filter_by(customer_id=current_user.id).order_by(LoanApplication.created_at.desc()).all()
     
     # Active loans (DISBURSED)
@@ -93,14 +95,14 @@ def apply():
     if form.validate_on_submit():
         product = LoanProduct.query.get_or_404(form.product_id.data)
 
-        # Update profile info
+        # Update customer profile financials
         profile = current_user.customer_profile
         profile.employment_type = form.employment_type.data
         profile.annual_income = float(form.monthly_income.data) * 12.0
         profile.monthly_debt = float(form.existing_monthly_debt.data or 0.0)
         profile.tax_id_masked = mask_identifier(form.tax_id.data)
 
-        # Create application
+        # Create application scoped to current_user.id
         application = LoanApplication(
             customer_id=current_user.id,
             product_id=product.id,
@@ -116,7 +118,7 @@ def apply():
         db.session.add(application)
         db.session.commit()
 
-        # Execute automated underwriting assessment
+        # Execute automated rule-based underwriting assessment
         assessment = evaluate_loan_application(application)
 
         # Log audit trail
@@ -145,7 +147,7 @@ def apply():
 
 @customer_bp.route("/loans/<int:app_id>")
 def application_detail(app_id: int):
-    # Strict IDOR prevention: Customer can only access their own loan application
+    # Strict Server-Side IDOR Prevention (Rule #5 & Phase 4 Requirement)
     application = LoanApplication.query.filter_by(id=app_id, customer_id=current_user.id).first_or_404()
     
     upload_form = DocumentUploadForm()
@@ -164,7 +166,7 @@ def application_detail(app_id: int):
 @customer_bp.route("/loans/<int:app_id>/documents/upload", methods=["POST"])
 @limiter.limit("20 per hour")
 def upload_document(app_id: int):
-    # Strict IDOR check
+    # Strict Server-Side IDOR Verification
     application = LoanApplication.query.filter_by(id=app_id, customer_id=current_user.id).first_or_404()
 
     form = DocumentUploadForm()
@@ -190,7 +192,7 @@ def upload_document(app_id: int):
             flash("Document uploaded securely and queued for verification.", "success")
         except ValueError as e:
             flash(str(e), "danger")
-        except Exception as e:
+        except Exception:
             flash("An unexpected error occurred while processing your upload.", "danger")
 
     else:
@@ -203,7 +205,7 @@ def upload_document(app_id: int):
 
 @customer_bp.route("/documents/<file_uuid>/download")
 def download_document(file_uuid: str):
-    # Ownership verification (Security Rule #5)
+    # Strict Server-Side Ownership Check (Security Rule #5)
     doc = ApplicationDocument.query.filter_by(file_uuid=file_uuid).first_or_404()
 
     if doc.user_id != current_user.id and current_user.role not in (UserRole.LOAN_OFFICER, UserRole.LOAN_MANAGER, UserRole.ADMIN):
@@ -211,11 +213,13 @@ def download_document(file_uuid: str):
 
     try:
         path = get_document_file_path(doc)
+        # Memory-safe streamed file transmission
         return send_file(
             path,
             mimetype=doc.mime_type,
             as_attachment=True,
             download_name=doc.original_filename,
+            conditional=True,
         )
     except FileNotFoundError:
         abort(404)
@@ -223,7 +227,7 @@ def download_document(file_uuid: str):
 
 @customer_bp.route("/loans/<int:app_id>/repayments")
 def repayment_schedule(app_id: int):
-    # IDOR check
+    # Strict Server-Side IDOR Check
     application = LoanApplication.query.filter_by(id=app_id, customer_id=current_user.id).first_or_404()
     schedules = application.repayment_schedules.order_by(RepaymentSchedule.installment_number.asc()).all()
 
@@ -234,9 +238,26 @@ def repayment_schedule(app_id: int):
     )
 
 
+@customer_bp.route("/loans/<int:app_id>/repayments/export")
+def export_customer_repayments(app_id: int):
+    """
+    Render Free-Tier Optimization & Memory Leak Prevention:
+    Streams repayment schedule directly from database cursor without buffering arrays in server RAM.
+    """
+    # Strict Server-Side IDOR Check
+    application = LoanApplication.query.filter_by(id=app_id, customer_id=current_user.id).first_or_404()
+    cursor = RepaymentSchedule.query.filter_by(application_id=application.id).order_by(RepaymentSchedule.installment_number.asc())
+
+    return Response(
+        stream_repayments_csv(cursor),
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename=repayment_schedule_{application.application_number}.csv"},
+    )
+
+
 @customer_bp.route("/repayments/<int:schedule_id>/pay", methods=["GET", "POST"])
 def pay_installment(schedule_id: int):
-    # IDOR check via join with LoanApplication
+    # Strict IDOR check via join with LoanApplication
     schedule = (
         RepaymentSchedule.query.join(LoanApplication)
         .filter(
@@ -289,6 +310,23 @@ def pay_installment(schedule_id: int):
             flash(f"Payment failed: {str(e)}", "danger")
 
     return render_template("customer/pay_installment.html", schedule=schedule, form=form)
+
+
+@customer_bp.route("/notifications")
+def notifications_center():
+    """Customer Notification Center showing all alerts with strict user scoping."""
+    user_notifications = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).all()
+    return render_template("customer/notifications.html", notifications=user_notifications)
+
+
+@customer_bp.route("/notifications/<int:notif_id>/read", methods=["POST"])
+def mark_notification_read(notif_id: int):
+    """Marks an individual notification read with IDOR verification."""
+    notif = Notification.query.filter_by(id=notif_id, user_id=current_user.id).first_or_404()
+    notif.is_read = True
+    db.session.commit()
+    flash("Notification marked as read.", "info")
+    return redirect(url_for("customer.notifications_center"))
 
 
 @customer_bp.route("/notifications/read-all", methods=["POST"])

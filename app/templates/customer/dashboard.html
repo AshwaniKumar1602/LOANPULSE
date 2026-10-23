@@ -78,12 +78,17 @@
           <i class="fa-solid fa-bell text-amber-600 dark:text-amber-400"></i>
           <h3 class="text-sm font-bold text-amber-950 dark:text-amber-200">Recent Alerts & Updates</h3>
         </div>
-        <form method="POST" action="{{ url_for('customer.read_all_notifications') }}">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit" class="text-xs font-semibold text-amber-800 dark:text-amber-400 hover:underline">
-            Mark all read
-          </button>
-        </form>
+        <div class="flex items-center space-x-3">
+          <a href="{{ url_for('customer.notifications_center') }}" class="text-xs font-semibold text-amber-800 dark:text-amber-400 hover:underline">
+            View all notifications &rarr;
+          </a>
+          <form method="POST" action="{{ url_for('customer.read_all_notifications') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="text-xs font-semibold text-amber-800 dark:text-amber-400 hover:underline cursor-pointer">
+              Mark all read
+            </button>
+          </form>
+        </div>
       </div>
       <div class="space-y-2">
         {% for notif in notifications %}
